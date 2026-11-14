@@ -2,7 +2,7 @@
 // (ensureAudio se llama desde manejadores de clic o tecla).
 
 import * as Tone from 'tone';
-import { mapCell, tempoFor, bassForBrightness, INSTRUMENTS, DEFAULT_INSTRUMENT } from './mapping.js';
+import { mapCell, tempoFor, bassForBrightness, SOUND_STYLES, DEFAULT_SOUND_STYLE } from './mapping.js';
 
 // Cada celda dura una corchea de tresillo: las 9 celdas de una columna forman un
 // arpegio de 3 tiempos. Programar celda a celda permite que la pausa sea inmediata.
@@ -17,7 +17,7 @@ const state = {
   repeatId: null,
   baseTempo: 120,
   volume: 0.7,
-  theme: null,
+  soundStyle: 'ambiental',
 };
 const handlers = { onCell: () => {}, onEnd: () => {} };
 
@@ -38,11 +38,11 @@ async function build() {
   const master = new Tone.Volume(volumeToDb(state.volume)).connect(duck);
   const reverb = new Tone.Reverb({ decay: 2.2, wet: 0.22 }).connect(master);
   const panner = new Tone.Panner(0).connect(reverb);
-  const filter = new Tone.Filter(DEFAULT_INSTRUMENT.cutoff, 'lowpass').connect(panner);
+  const filter = new Tone.Filter(DEFAULT_SOUND_STYLE.cutoff, 'lowpass').connect(panner);
 
-  const envelope = { attack: 0.01, decay: 0.15, sustain: 0.5, release: DEFAULT_INSTRUMENT.release };
-  const soft = new Tone.PolySynth(Tone.Synth, { oscillator: { type: DEFAULT_INSTRUMENT.soft }, envelope }).connect(panner);
-  const bright = new Tone.PolySynth(Tone.Synth, { oscillator: { type: DEFAULT_INSTRUMENT.bright }, envelope }).connect(filter);
+  const envelope = { attack: 0.01, decay: 0.15, sustain: 0.5, release: DEFAULT_SOUND_STYLE.release };
+  const soft = new Tone.PolySynth(Tone.Synth, { oscillator: { type: DEFAULT_SOUND_STYLE.soft }, envelope }).connect(panner);
+  const bright = new Tone.PolySynth(Tone.Synth, { oscillator: { type: DEFAULT_SOUND_STYLE.bright }, envelope }).connect(filter);
   soft.volume.value = -6;
   bright.volume.value = -14;
 
@@ -60,9 +60,21 @@ async function build() {
   }).connect(reverb);
   bass.volume.value = -18;
 
+  const accompaniment = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: 'triangle' },
+    envelope: { attack: 0.025, decay: 0.25, sustain: 0.2, release: 0.7 },
+  }).connect(reverb);
+  accompaniment.volume.value = -24;
+  const pulse = new Tone.MembraneSynth({
+    pitchDecay: 0.04,
+    octaves: 3,
+    envelope: { attack: 0.001, decay: 0.16, sustain: 0, release: 0.05 },
+  }).connect(master);
+  pulse.volume.value = -25;
+
   await reverb.ready;
-  nodes = { limiter, meter, fft, duck, master, reverb, panner, filter, soft, bright, bell, bass };
-  applyInstrument();
+  nodes = { limiter, meter, fft, duck, master, reverb, panner, filter, soft, bright, bell, bass, accompaniment, pulse };
+  applySoundStyle();
 }
 
 export async function ensureAudio() {
@@ -70,12 +82,19 @@ export async function ensureAudio() {
   if (!nodes) await build();
 }
 
-function applyInstrument() {
+function applySoundStyle() {
   if (!nodes) return;
-  const inst = INSTRUMENTS[state.theme] ?? DEFAULT_INSTRUMENT;
+  const inst = SOUND_STYLES[state.soundStyle] ?? DEFAULT_SOUND_STYLE;
   nodes.soft.set({ oscillator: { type: inst.soft }, envelope: { release: inst.release } });
   nodes.bright.set({ oscillator: { type: inst.bright }, envelope: { release: inst.release } });
   nodes.filter.frequency.value = inst.cutoff;
+  nodes.accompaniment.set({ oscillator: { type: inst.arrangement === 'chords' ? 'triangle' : 'sine' } });
+}
+
+export function setSoundStyle(style) {
+  if (!Object.hasOwn(SOUND_STYLES, style)) return;
+  state.soundStyle = style;
+  applySoundStyle();
 }
 
 // Toca una celda ya mapeada dentro de una ranura de tiempo `slot` (segundos).
@@ -118,7 +137,22 @@ function onStep(time) {
     nodes.bass.triggerAttackRelease(bassForBrightness(avg), noteSlot * rows * 0.95, time, 0.6);
   }
   const cell = cellAt(row, col);
-  playMapped(state.mapped[row * cols + col], time, noteSlot);
+  const mapped = state.mapped[row * cols + col];
+  playMapped(mapped, time, noteSlot);
+  const arrangement = (SOUND_STYLES[state.soundStyle] ?? DEFAULT_SOUND_STYLE).arrangement;
+  // Acompañamiento musical separado del motivo informativo. Sigue las notas ya
+  // mapeadas; nunca cambia altura, ritmo ni posición que representan la imagen.
+  if (arrangement === 'chords' && row % 3 === 0) {
+    nodes.accompaniment.triggerAttackRelease(
+      [mapped.note, Tone.Frequency(mapped.note).transpose(3).toNote(), Tone.Frequency(mapped.note).transpose(7).toNote()],
+      noteSlot * 2.7,
+      time,
+      0.24,
+    );
+  } else if (arrangement === 'pulse' && row === 0) {
+    nodes.pulse.triggerAttackRelease('C1', '16n', time, 0.35);
+    nodes.pulse.triggerAttackRelease('C1', '16n', time + noteSlot * 0.5, 0.2);
+  }
   draw.schedule(() => handlers.onCell(cell, 'auto'), time);
 }
 
@@ -127,14 +161,15 @@ function silence() {
   nodes.soft.releaseAll();
   nodes.bright.releaseAll();
   nodes.bass.triggerRelease();
+  nodes.accompaniment.releaseAll();
+  nodes.pulse.triggerRelease();
 }
 
-export function setAnalysis(analysis, theme) {
+export function setAnalysis(analysis) {
   stop();
   state.analysis = analysis;
   state.mapped = analysis.cells.map((c) => mapCell(c, analysis.cols));
-  state.theme = theme;
-  applyInstrument();
+  applySoundStyle();
   applyTempo();
 }
 
@@ -221,4 +256,15 @@ export async function playCell(cell) {
   const now = Tone.now() + 0.02;
   nodes.panner.pan.setValueAtTime(m.pan, now);
   playMapped(m, now, 0.7);
+  const arrangement = (SOUND_STYLES[state.soundStyle] ?? DEFAULT_SOUND_STYLE).arrangement;
+  if (arrangement === 'chords') {
+    nodes.accompaniment.triggerAttackRelease(
+      [m.note, Tone.Frequency(m.note).transpose(3).toNote(), Tone.Frequency(m.note).transpose(7).toNote()],
+      0.6,
+      now,
+      0.24,
+    );
+  } else if (arrangement === 'pulse') {
+    nodes.pulse.triggerAttackRelease('C1', '16n', now, 0.35);
+  }
 }

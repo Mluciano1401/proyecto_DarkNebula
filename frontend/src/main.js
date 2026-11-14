@@ -11,4 +11,7 @@ import playlist from './data/playlist.json';
 import { createJukebox } from './components/jukebox.js';
 import { finishLoader } from './components/loader.js';
 
+// El estado se anuncia en la región accesible del reproductor; la animación de
+// carga es decorativa y no intercepta clics ni foco.
+document.getElementById('status').textContent = 'Preparando la primera visualización…';
 finishLoader(createJukebox(playlist));

@@ -4,6 +4,20 @@
 
 const BASE = '/svs';
 const CACHE_KEY = 'svs-catalog-v2';
+// Selección curada solicitada para la rocola. API devuelve la carátula oficial;
+// el proxy same-origin permite que el canvas lea los píxeles cuando la imagen carga.
+const CURATED = [
+  { id: 13786, theme: 'espacio', title: 'Caldwell 73: referencia astronómica', altText: 'Imagen de referencia NASA SVS para Caldwell 73. NASA ya publicó una sonificación asociada; esta rocola explora rasgos visuales de la carátula y no representa los datos astronómicos originales.' },
+  { id: 5313, theme: 'clima', title: 'Luces nocturnas de la Tierra', altText: 'Mapa de luces nocturnas con cambios entre 2012 y 2023. Los colores de esta imagen renderizada no se interpretan como radiancia calibrada.' },
+  { id: 3912, theme: 'océanos', title: 'Corrientes oceánicas y temperatura', altText: 'Mapa global de corrientes superficiales coloreadas según temperatura del mar. Es una imagen renderizada, no los valores numéricos originales.' },
+  { id: 5669, theme: 'clima', title: 'Aerosoles GEOS (2025)', altText: 'Visualización de categorías de aerosoles GEOS como sal marina, polvo, humo y sulfatos; los colores no se tratan como concentraciones.' },
+  { id: 5533, theme: 'clima', title: 'Calidad del aire: modelos NASA', altText: 'Visualización de capas de calidad del aire. Cada contaminante debe estudiarse por separado y la carátula no aporta sus valores numéricos calibrados.' },
+  { id: 5425, theme: 'océanos', title: 'Océano perpetuo: corrientes límite occidentales', altText: 'Visualización de corrientes oceánicas a distintas profundidades. NASA indica que algunos colores se eligieron por apariencia.' },
+  { id: 5196, theme: 'clima', title: 'Dióxido de carbono global DYAMOND', altText: 'Representación modelada de dióxido de carbono sobre el globo; no sustituye la cuadrícula numérica original.' },
+  { id: 5011, theme: 'clima', title: 'Rayos detectados desde la Estación Espacial', altText: 'Previsualización de eventos de rayos detectados por el sensor LIS desde la Estación Espacial; no es la tabla numérica de eventos.' },
+  { id: 4960, theme: 'clima', title: 'Río atmosférico en 3D', altText: 'Visualización tridimensional de humedad, viento, nubes y precipitación. El sombreado no es una escala numérica calibrada.' },
+  { id: 4950, theme: 'vegetación', title: 'Altura forestal observada por GEDI', altText: 'Representación de altura relativa GEDI; NASA advierte que la altura está exagerada visualmente.' },
+];
 // `match`: el título debe contener alguna de estas palabras (la búsqueda de SVS es amplia).
 const QUERIES = [
   { q: 'sea surface temperature', theme: 'temperatura', match: /temperature/i },
@@ -27,6 +41,61 @@ async function getJson(path) {
   const type = res.headers.get('content-type') ?? '';
   if (!type.includes('json')) throw new Error('Respuesta no JSON (¿sin proxy?)');
   return res.json();
+}
+
+function apiImage(details) {
+  const images = [details.main_image, ...(details.media_groups ?? []).flatMap((g) => (g.items ?? []).map((item) => item.instance))];
+  return images.find((i) => i?.media_type === 'Image' && i.url && /\.(jpe?g|png)$/i.test(i.filename) && !/legend|color.?bar|_bar/i.test(i.filename)) ?? null;
+}
+
+function confirmImageLoads(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const timeout = setTimeout(() => {
+      image.src = '';
+      reject(new Error(`Tiempo de espera al cargar ${src}`));
+    }, 20000);
+    image.onload = () => { clearTimeout(timeout); resolve(); };
+    image.onerror = () => { clearTimeout(timeout); reject(new Error(`No cargó la imagen ${src}`)); };
+    image.decoding = 'async';
+    image.src = src;
+  });
+}
+
+export async function fetchCuratedImages() {
+  const results = await Promise.allSettled(CURATED.map(async (entry) => {
+    const details = await getJson(`/api/${entry.id}/`);
+    const image = apiImage(details);
+    if (!image) throw new Error(`La API ${entry.id} no contiene una imagen fija`);
+    const description = cleanDescription(details.description);
+    const item = {
+      id: details.id,
+      title: entry.title,
+      theme: entry.theme,
+      description: `Exploración de características visuales. ${description || details.title} Esta sonificación no representa directamente una medición científica original.`,
+      altText: entry.altText,
+      image: proxied(image.url),
+      nasaUrl: `https://svs.gsfc.nasa.gov/${details.id}/`,
+      apiUrl: `https://svs.gsfc.nasa.gov/api/${details.id}/`,
+      nasaTitle: details.title,
+      credit: 'NASA Scientific Visualization Studio',
+      sonificationType: 'visual-features',
+      originalImage: { filename: image.filename, width: image.width, height: image.height },
+      ...(details.id === 13786 ? { existingNasaSonification: true } : {}),
+    };
+    await confirmImageLoads(item.image);
+    return item;
+  }));
+  const items = results.flatMap((result, index) => {
+    if (result.status === 'fulfilled') return [result.value];
+    console.warn(`No se pudo cargar la API NASA ${CURATED[index].id}:`, result.reason);
+    return [];
+  });
+  if (!items.length) throw new Error('NASA SVS no devolvió ninguna imagen del catálogo curado');
+  return {
+    items,
+    failedIds: results.flatMap((result, index) => result.status === 'rejected' ? [CURATED[index].id] : []),
+  };
 }
 
 // Misma regla que scripts/fetch-images.mjs: imagen apaisada de 800–2048 px.

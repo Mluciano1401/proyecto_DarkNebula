@@ -444,6 +444,25 @@ button {
   gap: var(--space-3);
 }
 
+.sound-style {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sound-style label {
+  color: var(--muted);
+}
+
+.sound-style select {
+  min-height: 36px;
+  padding: 4px 28px 4px 10px;
+  border: 1.5px solid var(--control-border);
+  border-radius: 999px;
+  color: var(--text);
+  background: var(--panel-2);
+}
+
 .slider label {
   color: var(--text-secondary);
 }

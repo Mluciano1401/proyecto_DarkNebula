@@ -12,11 +12,13 @@ Las visualizaciones de la Tierra de NASA (temperatura del mar, hielo ártico, ll
 
 ## Qué hace
 
-- **Rocola**: eliges una imagen de NASA como si fuera un álbum, con Anterior / Reproducir-Pausa / Siguiente y un menú que filtra por tema (clima, temperatura, océanos, hielo, vegetación).
+- **Rocola**: eliges una imagen de NASA como si fuera un álbum, con Anterior / Reproducir-Pausa / Siguiente y un menú que filtra por tema.
 - **Modo automático**: la imagen suena como una partitura, columna por columna de izquierda a derecha; cada columna es un arpegio de 9 celdas (de arriba abajo) y la celda que suena se resalta.
 - **Modo exploración**: recorres la cuadrícula con las flechas o el ratón y cada celda suena al instante, con su descripción en texto.
 - **Avatar que escucha**: junto a la rocola, una Tierra con auriculares reacciona al audio (nivel, graves, medios y 5 bandas del espectro con `Tone.Meter` y `Tone.FFT`); el giro sigue el tempo, la aurora toma el color de la celda que suena y destella suavemente en las celdas inusuales.
 - **Narración**: al cambiar de imagen, una voz en español lee el título y un resumen generado del análisis (se puede desactivar).
+- **Género musical**: ambiental añade notas sostenidas, clásica acordes y electrónica pulsos rítmicos. Son arreglos sintetizados inspirados en esos géneros; mantienen intactas las notas, alturas, posiciones y demás mapeos que comunican la imagen.
+- **Imágenes NASA**: al iniciar, la rocola consulta las API de las diez fuentes solicitadas y precarga las carátulas a través del proxy de mismo origen. Si la conexión o una imagen falla, anuncia el problema y conserva la colección local.
 - **Catálogo en vivo** (opcional): el botón "Añadir más del catálogo en vivo de NASA" busca en la SVS API más visualizaciones de la categoría *Earth* y las añade a la rocola (textos originales en inglés). Si la API no responde, la app sigue con la lista curada.
 
 ## Cómo ejecutarlo
@@ -31,16 +33,24 @@ npm run build      # genera frontend/dist
 npm run preview    # sirve el build
 ```
 
-Para volver a descargar las imágenes de NASA y regenerar `src/data/playlist.json`:
+Para descargar localmente las diez imágenes de NASA y regenerar `src/data/playlist.json`:
 
 ```bash
 cd frontend
 node scripts/fetch-images.mjs
 ```
 
-El script usa la [NASA SVS API](https://svs.gsfc.nasa.gov/help/) (`/api/<id>/` y `/api/search/`) y guarda copias medianas en `public/images/`. Trabajamos con copias locales para que Canvas pueda leer los píxeles sin problemas de CORS.
+El script usa la [NASA SVS API](https://svs.gsfc.nasa.gov/help/) (`/api/<id>/`) y guarda las imágenes en `public/images/`. La experiencia también consulta las API en el navegador y precarga cada carátula mediante el proxy `/svs`, que permite que Canvas lea los píxeles sin problemas de CORS. GitHub Pages no admite ese proxy; para usar el catálogo con carga de imágenes desde API, desplieguen en Netlify o empaqueten antes las descargas locales.
+
+Las diez fuentes curadas son: [13786](https://svs.gsfc.nasa.gov/api/13786/), [5313](https://svs.gsfc.nasa.gov/api/5313/), [3912](https://svs.gsfc.nasa.gov/api/3912/), [5669](https://svs.gsfc.nasa.gov/api/5669/), [5533](https://svs.gsfc.nasa.gov/api/5533/), [5425](https://svs.gsfc.nasa.gov/api/5425/), [5196](https://svs.gsfc.nasa.gov/api/5196/), [5011](https://svs.gsfc.nasa.gov/api/5011/), [4960](https://svs.gsfc.nasa.gov/api/4960/) y [4950](https://svs.gsfc.nasa.gov/api/4950/). Para 13786, el enlace a la página informativa es [NASA SVS 13786](https://svs.gsfc.nasa.gov/13786/); esa pieza ya incluye una sonificación NASA y aquí se etiqueta como exploración visual de referencia.
 
 ## Cómo se convierte la imagen en sonido
+
+### Auditoría de fuentes y piloto
+
+El inventario de las diez fuentes NASA compartidas está en [`src/data/source-catalog.json`](frontend/src/data/source-catalog.json). Separa los videos ya sonificados de las visualizaciones de la Tierra, documenta variables, fechas, unidades conocidas, archivos y conjuntos fuente, y señala los casos donde el metadato de NASA es incompleto o contradictorio.
+
+Elegimos el **ID 5011, eventos de rayos del sensor LIS en la ISS**, como visualización piloto. Para la primera capa cuantitativa usaremos el producto NASA [ISS LIS Annual Thunder Hour](https://data.nasa.gov/dataset/international-space-station-iss-lightning-imaging-sensor-lis-annual-thunder-hour): un NetCDF-4 con una grilla de 0,05° y una medida definida en horas por año. Este producto cubre 2017-03-01 a 2023-11-16 y resume actividad de largo plazo; no es la misma ventana móvil de 10 días de la animación SVS. Está catalogado, pero todavía no está descargado ni integrado. Si después reproducimos las ventanas de 10 días, usaremos los eventos LIS originales y controlaremos la cobertura de observación antes de interpretar conteos. La especificación inicial de sonificación está en [`src/data/pilot-5011-sonification.md`](frontend/src/data/pilot-5011-sonification.md).
 
 1. **Canvas** (`processing/image-processor.js`): la imagen se reduce a 512 px y se divide en una cuadrícula de **16 columnas × 9 filas**. Por celda se calcula el color medio, el croma medio y la media y desviación de la luminancia.
 2. **Análisis** (`analysis/features.js`): por celda, brillo, tono, saturación y textura, normalizados de 0 a 1 respecto a la imagen. Una celda es *inusual* si su brillo o su textura se alejan más de 2 desviaciones típicas (|z| > 2). Se genera una descripción en español por celda y un resumen de la imagen.
@@ -56,7 +66,7 @@ El script usa la [NASA SVS API](https://svs.gsfc.nasa.gov/help/) (`/api/<id>/` y
 | Celda inusual (\|z\| > 2) | Acento | Campana breve (FM) una octava arriba |
 | Contraste de la imagen | Tempo | Hasta un 25 % más rápido con más contraste |
 | Brillo medio de la columna | Bajo | Nota grave sostenida por columna |
-| Tema | Instrumento | Cada tema cambia las formas de onda y el filtro, no las reglas |
+| Género musical | Arreglo de acompañamiento | Ambiental añade notas sostenidas, clásica acordes y electrónica pulsos; el motivo y el mapeo de las características visuales se conservan |
 
 Usamos el croma (máx − mín de RGB) como "saturación" porque la S de HSL se dispara en píxeles casi negros y haría sonar fuerte el fondo del espacio.
 
@@ -118,10 +128,15 @@ Imágenes y datos: **NASA Scientific Visualization Studio (SVS)**, de dominio p�
 
 | Pieza | Tema | Fuente |
 | --- | --- | --- |
-| Sea Surface Temperature (SST) – Near Real Time | Temperatura | [SVS 5101](https://svs.gsfc.nasa.gov/5101/) |
-| Arctic Sea Ice Minimum 2026 | Hielo | [SVS 5677](https://svs.gsfc.nasa.gov/5677/) |
-| Global Ocean Color from PACE: Apparent Visible Wavelength | Océanos | [SVS 5690](https://svs.gsfc.nasa.gov/5690/) |
-| Global Views of PACE Land Vegetation Data | Vegetación | [SVS 5548](https://svs.gsfc.nasa.gov/5548/) |
-| Near Real-Time Global Precipitation (GPM) | Clima | [SVS 5650](https://svs.gsfc.nasa.gov/5650/) |
+| Caldwell 73 (referencia ya sonificada) | Espacio | [SVS 13786](https://svs.gsfc.nasa.gov/13786/) |
+| Luces nocturnas | Clima | [SVS 5313](https://svs.gsfc.nasa.gov/5313/) |
+| Corrientes y temperatura superficial | Océanos | [SVS 3912](https://svs.gsfc.nasa.gov/3912/) |
+| Aerosoles GEOS | Clima | [SVS 5669](https://svs.gsfc.nasa.gov/5669/) |
+| Modelo de calidad del aire | Clima | [SVS 5533](https://svs.gsfc.nasa.gov/5533/) |
+| Corrientes límite occidentales | Océanos | [SVS 5425](https://svs.gsfc.nasa.gov/5425/) |
+| Dióxido de carbono DYAMOND | Clima | [SVS 5196](https://svs.gsfc.nasa.gov/5196/) |
+| Rayos LIS desde la ISS | Clima | [SVS 5011](https://svs.gsfc.nasa.gov/5011/) |
+| Río atmosférico | Clima | [SVS 4960](https://svs.gsfc.nasa.gov/4960/) |
+| Altura forestal GEDI | Vegetación | [SVS 4950](https://svs.gsfc.nasa.gov/4950/) |
 
 Bibliotecas: [Tone.js](https://tonejs.github.io/) y [D3.js](https://d3js.org/).

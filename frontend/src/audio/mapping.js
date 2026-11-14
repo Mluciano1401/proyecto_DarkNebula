@@ -38,12 +38,12 @@ export function mapCell(cell, cols) {
   };
 }
 
-// Instrumento por tema: cambia el color de las ondas, no las reglas del mapeo.
-export const INSTRUMENTS = {
-  temperatura: { soft: 'triangle', bright: 'sawtooth', cutoff: 2400, release: 0.6 },
-  océanos: { soft: 'sine', bright: 'sawtooth', cutoff: 1400, release: 1.2 },
-  hielo: { soft: 'sine', bright: 'square', cutoff: 3200, release: 1.5 },
-  vegetación: { soft: 'triangle', bright: 'square', cutoff: 1600, release: 0.4 },
-  clima: { soft: 'sine', bright: 'sawtooth', cutoff: 2000, release: 0.8 },
+// Arreglos inspirados en géneros: el motivo principal y su mapeo de datos nunca
+// cambian. Solo varían el timbre y un acompañamiento opcional, de volumen bajo.
+// No son interpretaciones auténticas de instrumentos acústicos.
+export const SOUND_STYLES = {
+  ambiental: { soft: 'sine', bright: 'triangle', cutoff: 1400, release: 1.5, arrangement: 'pad' },
+  clasica: { soft: 'triangle', bright: 'sawtooth', cutoff: 2200, release: 0.85, arrangement: 'chords' },
+  electronica: { soft: 'square', bright: 'sawtooth', cutoff: 3600, release: 0.18, arrangement: 'pulse' },
 };
-export const DEFAULT_INSTRUMENT = INSTRUMENTS.temperatura;
+export const DEFAULT_SOUND_STYLE = SOUND_STYLES.ambiental;
