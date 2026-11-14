@@ -351,5 +351,6 @@ export function createJukebox(initialPlaylist) {
   engine.setTempo(+el.tempo.value);
   renderNarration();
   renderThemes();
-  if (playlist.length) selectItem(playlist[0], { speak: false });
+  // Devuelve una promesa que se resuelve cuando la primera imagen está lista.
+  return playlist.length ? selectItem(playlist[0], { speak: false }) : Promise.resolve();
 }
