@@ -8,7 +8,148 @@
     <title>Jukebox Terrestre · NASA Earth Sonification</title>
   </head>
   <body>
-    <main id="app"></main>
+    <a class="skip-link" href="#reproductor">Saltar al contenido</a>
+
+    <header class="site-header">
+      <svg class="globe" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <defs>
+          <clipPath id="globe-clip"><circle cx="32" cy="32" r="28" /></clipPath>
+          <radialGradient id="globe-sea" cx="35%" cy="30%" r="75%">
+            <stop offset="0" stop-color="#3d9bf0" />
+            <stop offset="1" stop-color="#0b2a5e" />
+          </radialGradient>
+        </defs>
+        <circle cx="32" cy="32" r="28" fill="url(#globe-sea)" />
+        <g clip-path="url(#globe-clip)">
+          <g class="globe-land" fill="#5fd18c">
+            <path d="M6 18c6-4 12-2 14 3s-2 8 1 12 2 10-3 12-6-6-8-10-6-12-4-17z" />
+            <path d="M30 14c5-2 10 0 11 4s-4 5-2 9 6 4 4 9-6 9-9 5-1-9-4-12-3-13 0-15z" />
+            <path d="M48 20c4-1 9 1 10 5s-3 6-6 6-6-2-6-5 0-5 2-6z" />
+            <path d="M70 18c6-4 12-2 14 3s-2 8 1 12 2 10-3 12-6-6-8-10-6-12-4-17z" />
+            <path d="M94 14c5-2 10 0 11 4s-4 5-2 9 6 4 4 9-6 9-9 5-1-9-4-12-3-13 0-15z" />
+            <path d="M112 20c4-1 9 1 10 5s-3 6-6 6-6-2-6-5 0-5 2-6z" />
+          </g>
+        </g>
+        <circle cx="32" cy="32" r="28" fill="none" stroke="#5fd18c" stroke-opacity=".5" stroke-width="2" />
+      </svg>
+      <div>
+        <h1>Jukebox Terrestre</h1>
+        <p class="tagline">Escucha la Tierra: visualizaciones de NASA convertidas en sonido.</p>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="player" id="reproductor" tabindex="-1" aria-labelledby="player-title">
+        <h2 id="player-title" class="visually-hidden">Reproductor</h2>
+        <div class="device">
+          <div class="screen">
+            <figure class="screen-figure">
+              <div class="image-wrap">
+                <img id="art" alt="" width="1024" height="512" />
+                <div id="grid" class="grid-overlay"></div>
+              </div>
+              <figcaption class="now-playing">
+                <span class="now-label" id="now-label">Seleccionada</span>
+                <span class="now-title" id="now-title">Cargando…</span>
+                <span class="theme-chip" id="now-theme"></span>
+              </figcaption>
+            </figure>
+          </div>
+
+          <div class="transport" role="group" aria-label="Controles de reproducción">
+            <button type="button" class="btn-round" id="btn-prev" aria-label="Imagen anterior">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M17 4 6 12l11 8z" /></svg>
+            </button>
+            <button type="button" class="btn-round btn-play" id="btn-play" aria-label="Reproducir">
+              <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4l12 8-12 8z" /></svg>
+              <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 4h4v16H6zM14 4h4v16h-4z" /></svg>
+            </button>
+            <button type="button" class="btn-round" id="btn-next" aria-label="Imagen siguiente">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 4l11 8-11 8z" /></svg>
+            </button>
+          </div>
+
+          <div class="settings">
+            <fieldset class="mode">
+              <legend>Modo</legend>
+              <label><input type="radio" name="mode" value="auto" checked /> Automático</label>
+              <label><input type="radio" name="mode" value="explore" /> Exploración</label>
+            </fieldset>
+            <div class="slider">
+              <label for="volume">Volumen</label>
+              <input id="volume" type="range" min="0" max="100" step="5" value="70" />
+              <output id="volume-out" for="volume">70 %</output>
+            </div>
+            <div class="slider">
+              <label for="tempo">Tempo base</label>
+              <input id="tempo" type="range" min="60" max="200" step="10" value="120" />
+              <output id="tempo-out" for="tempo">120 bpm</output>
+            </div>
+            <button type="button" class="btn-toggle" id="btn-narration" aria-pressed="true">Narración: activada</button>
+          </div>
+        </div>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+      </section>
+
+      <aside class="library" aria-labelledby="library-title">
+        <h2 id="library-title">Menú</h2>
+        <p class="hint">Imágenes de la NASA como álbumes.</p>
+        <div class="themes" id="theme-filter" role="group" aria-label="Filtrar por tema"></div>
+        <ul class="albums" id="album-list" aria-label="Lista de imágenes"></ul>
+      </aside>
+
+      <section class="details" aria-label="Información">
+        <article class="card">
+          <h2>Celda actual</h2>
+          <p id="cell-info">Elige una celda con el ratón o con las flechas del teclado.</p>
+        </article>
+        <article class="card">
+          <h2>Sobre esta imagen</h2>
+          <p id="image-desc"></p>
+          <p id="image-summary" class="summary"></p>
+          <p><a id="nasa-link" href="https://svs.gsfc.nasa.gov/" target="_blank" rel="noopener">Ver en NASA SVS<span class="visually-hidden"> (se abre en una pestaña nueva)</span></a></p>
+        </article>
+        <article class="card legend">
+          <h2>Leyenda: qué significa cada sonido</h2>
+          <dl>
+            <dt>Brillo → altura</dt>
+            <dd>Las zonas claras suenan agudas y las oscuras graves (escala pentatónica de Do en dos octavas).</dd>
+            <dt>Color → timbre</dt>
+            <dd>Los tonos fríos (azules) suenan suaves y redondos; los cálidos (rojos, naranjas) suenan más brillantes.</dd>
+            <dt>Saturación → volumen</dt>
+            <dd>Los colores intensos suenan más fuerte; los grises, más bajo.</dd>
+            <dt>Textura → ritmo</dt>
+            <dd>Una zona uniforme da una nota larga; una zona con mucha variación da notas rápidas repetidas.</dd>
+            <dt>Posición → paneo</dt>
+            <dd>La izquierda de la imagen suena en el oído izquierdo y la derecha en el derecho.</dd>
+            <dt>Zona inusual → campana</dt>
+            <dd>Una campana breve marca las celdas con variaciones visuales inusuales (punto naranja en la cuadrícula).</dd>
+            <dt>Contraste → tempo</dt>
+            <dd>Las imágenes con más contraste suenan algo más rápido.</dd>
+            <dt>Bajo</dt>
+            <dd>Una nota grave sostiene el brillo medio de cada columna.</dd>
+            <dt>Recorrido automático</dt>
+            <dd>Columnas de izquierda a derecha; en cada columna, filas de arriba abajo. Cada tema usa un instrumento distinto.</dd>
+          </dl>
+          <p class="note">Detectamos variaciones visuales en la imagen, no fenómenos confirmados.</p>
+        </article>
+        <article class="card">
+          <h2>Teclado</h2>
+          <ul class="keys">
+            <li><kbd>Tab</kbd> recorre los controles y entra en la cuadrícula.</li>
+            <li><kbd>Flechas</kbd> mueven la celda activa (en modo exploración, la celda suena al moverte).</li>
+            <li><kbd>Inicio</kbd> / <kbd>Fin</kbd> van al principio o al final de la fila.</li>
+            <li><kbd>Enter</kbd> escucha la celda activa y lee su descripción.</li>
+            <li><kbd>Espacio</kbd> en la cuadrícula reproduce o pausa el recorrido.</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Imágenes y datos: <a href="https://svs.gsfc.nasa.gov/" target="_blank" rel="noopener">NASA Scientific Visualization Studio<span class="visually-hidden"> (se abre en una pestaña nueva)</span></a>. Proyecto para NASA Space Apps · reto Earth Jukebox.</p>
+    </footer>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

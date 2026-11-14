@@ -1,11 +1,6 @@
+import './styles/main.css';
+import './styles/accessibility.css';
 import playlist from './data/playlist.json';
+import { createJukebox } from './components/jukebox.js';
 
-const app = document.querySelector('#app');
-const list = document.createElement('ul');
-for (const item of playlist) {
-  const li = document.createElement('li');
-  li.textContent = `${item.title} (${item.theme})`;
-  list.append(li);
-}
-app.append(list);
-console.log(`Playlist cargada: ${playlist.length} piezas`);
+createJukebox(playlist);

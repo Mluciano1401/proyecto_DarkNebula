@@ -1,0 +1,84 @@
+/* Accesibilidad: WCAG 2.2 AA */
+
+/* Enlace para saltar al contenido: visible al recibir foco. */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--focus);
+  color: #1a1300;
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* Texto solo para lectores de pantalla. */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Foco siempre visible y con buen contraste (2.4.7, 2.4.11). */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.grid-cell:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 6px #000a;
+  z-index: 1;
+}
+
+.player:focus {
+  outline: none;
+}
+
+/* Objetivos táctiles de al menos 24 × 24 px (2.5.8). */
+button,
+input[type='radio'],
+input[type='range'] {
+  min-height: 24px;
+  min-width: 24px;
+}
+
+/* Respeta la preferencia de movimiento reducido. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Modo de alto contraste de Windows. */
+@media (forced-colors: active) {
+  .grid-cell {
+    border-color: CanvasText;
+  }
+  .grid-cell.is-playing {
+    outline: 3px solid Highlight;
+    outline-offset: -3px;
+  }
+  .btn-round,
+  .album[aria-current='true'] {
+    border-color: Highlight;
+  }
+}
