@@ -75,6 +75,8 @@ export function createJukebox(playlist) {
     engine.playCell(cell);
     showCell(cell);
     announce(cell.description);
+    // Con narración activa, también se lee en voz alta (útil sin lector de pantalla).
+    if (!engine.isPlaying()) narrate(cell.description);
   }
 
   engine.setHandlers({
@@ -255,13 +257,21 @@ export function createJukebox(playlist) {
     el.tempoOut.textContent = `${el.tempo.value} bpm`;
   });
 
+  // Nombre accesible fijo ("Narración") + aria-pressed; el estado visible va en un
+  // span oculto al lector para que no se anuncie dos veces.
   function renderNarration() {
+    if (!narrator.isSupported()) {
+      el.narration.textContent = 'Narración no disponible';
+      el.narration.disabled = true;
+      el.narration.removeAttribute('aria-pressed');
+      return;
+    }
     const on = narrator.isEnabled();
     el.narration.setAttribute('aria-pressed', String(on));
-    el.narration.textContent = narrator.isSupported()
-      ? `Narración: ${on ? 'activada' : 'desactivada'}`
-      : 'Narración no disponible';
-    el.narration.disabled = !narrator.isSupported();
+    const state = document.createElement('span');
+    state.setAttribute('aria-hidden', 'true');
+    state.textContent = on ? ': activada' : ': desactivada';
+    el.narration.replaceChildren('Narración', state);
   }
   el.narration.addEventListener('click', () => {
     narrator.setEnabled(!narrator.isEnabled());

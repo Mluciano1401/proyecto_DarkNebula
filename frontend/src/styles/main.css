@@ -3,6 +3,7 @@
   --panel: #10182f;
   --panel-2: #172242;
   --border: #2c3d6e;
+  --control-border: #8494c4; /* ≥ 3:1 sobre los paneles (1.4.11) */
   --text: #eef2ff;
   --muted: #b8c3e0;
   --accent: #7cc4ff;
@@ -355,7 +356,7 @@ button {
   gap: 6px;
   min-height: 36px;
   padding: 0 12px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--control-border);
   border-radius: 999px;
   cursor: pointer;
 }
@@ -397,7 +398,7 @@ button {
   min-height: 36px;
   padding: 0 14px;
   border-radius: 999px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--control-border);
   background: transparent;
 }
 

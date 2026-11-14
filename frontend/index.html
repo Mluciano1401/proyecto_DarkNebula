@@ -85,7 +85,7 @@
               <input id="tempo" type="range" min="60" max="200" step="10" value="120" />
               <output id="tempo-out" for="tempo">120 bpm</output>
             </div>
-            <button type="button" class="btn-toggle" id="btn-narration" aria-pressed="true">Narración: activada</button>
+            <button type="button" class="btn-toggle" id="btn-narration" aria-pressed="true">Narración<span aria-hidden="true">: activada</span></button>
           </div>
         </div>
         <p id="status" class="status" role="status" aria-live="polite"></p>
@@ -142,6 +142,7 @@
             <li><kbd>Enter</kbd> escucha la celda activa y lee su descripción.</li>
             <li><kbd>Espacio</kbd> en la cuadrícula reproduce o pausa el recorrido.</li>
           </ul>
+          <p class="note">Si usas un lector de pantalla, puedes desactivar la narración para no oír las descripciones dos veces.</p>
         </article>
       </section>
     </main>
