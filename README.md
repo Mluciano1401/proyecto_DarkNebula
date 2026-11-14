@@ -4,7 +4,7 @@
 
 Proyecto del equipo **DarkNebula** para NASA Space Apps · reto *Earth Jukebox*.
 
-> **Demo:** _(añadir aquí la URL pública de GitHub Pages o Netlify)_
+> **Demo:** https://mluciano1401.github.io/proyecto_DarkNebula/ 
 
 ## El problema
 
