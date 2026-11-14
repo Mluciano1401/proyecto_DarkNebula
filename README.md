@@ -16,6 +16,7 @@ Las visualizaciones de la Tierra de NASA (temperatura del mar, hielo ártico, ll
 - **Modo automático**: la imagen suena como una partitura, columna por columna de izquierda a derecha; cada columna es un arpegio de 9 celdas (de arriba abajo) y la celda que suena se resalta.
 - **Modo exploración**: recorres la cuadrícula con las flechas o el ratón y cada celda suena al instante, con su descripción en texto.
 - **Narración**: al cambiar de imagen, una voz en español lee el título y un resumen generado del análisis (se puede desactivar).
+- **Catálogo en vivo** (opcional): el botón "Añadir más del catálogo en vivo de NASA" busca en la SVS API más visualizaciones de la categoría *Earth* y las añade a la rocola (textos originales en inglés). Si la API no responde, la app sigue con la lista curada.
 
 ## Cómo ejecutarlo
 
@@ -84,6 +85,7 @@ frontend/
 └── src/
     ├── main.js
     ├── data/playlist.json
+    ├── api/nasa-api.js                 catálogo en vivo (búsqueda + detalles, caché)
     ├── processing/image-processor.js   Canvas → cuadrícula 16 × 9
     ├── analysis/features.js            brillo, tono, saturación, textura, descripciones
     ├── audio/mapping.js                reglas imagen → sonido (funciones puras)
@@ -102,6 +104,8 @@ Stack: JavaScript con ES Modules, Vite, Canvas API, D3.js, Tone.js, Web Speech A
 - **Netlify**: arrastra la carpeta `frontend/dist` a [app.netlify.com/drop](https://app.netlify.com/drop), o conecta el repositorio (el archivo `netlify.toml` ya indica la carpeta base, el comando y la de publicación).
 
 El build usa `base: './'`, así que funciona en la raíz de un dominio o dentro de una subcarpeta.
+
+**Catálogo en vivo y CORS:** la SVS API y sus imágenes solo permiten CORS a otro dominio, así que el catálogo en vivo pasa por un proxy en `/svs`: `server.proxy` de Vite en desarrollo y vista previa, y una regla de `netlify.toml` en Netlify. GitHub Pages no admite proxy, así que allí el botón avisa de que el catálogo no está disponible y la app sigue con la lista curada. Para la demo con catálogo en vivo, usa Netlify.
 
 ## Créditos
 

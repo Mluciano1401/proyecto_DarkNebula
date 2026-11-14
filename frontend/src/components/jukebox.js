@@ -6,12 +6,14 @@ import { computeFeatures } from '../analysis/features.js';
 import * as engine from '../audio/audio-engine.js';
 import { createGrid } from '../visualization/grid-renderer.js';
 import * as narrator from '../accessibility/narrator.js';
+import { fetchCatalog } from '../api/nasa-api.js';
 
 const $ = (id) => document.getElementById(id);
 const THEME_ORDER = ['clima', 'temperatura', 'océanos', 'hielo', 'vegetación'];
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export function createJukebox(playlist) {
+export function createJukebox(initialPlaylist) {
+  const playlist = [...initialPlaylist]; // crece si se carga el catálogo en vivo
   const el = {
     art: $('art'),
     label: $('now-label'),
@@ -32,6 +34,8 @@ export function createJukebox(playlist) {
     tempo: $('tempo'),
     tempoOut: $('tempo-out'),
     narration: $('btn-narration'),
+    live: $('btn-live'),
+    liveStatus: $('live-status'),
     modes: document.querySelectorAll('input[name="mode"]'),
   };
 
@@ -42,6 +46,8 @@ export function createJukebox(playlist) {
     mode: 'auto',
     cache: new Map(),
     loadToken: 0,
+    loading: false,
+    playWhenReady: false,
   };
 
   // --- Anuncios (aria-live) y narración ------------------------------------
@@ -59,8 +65,11 @@ export function createJukebox(playlist) {
 
   // --- Cuadrícula ------------------------------------------------------------
   const grid = createGrid($('grid'), {
-    onActivate: (cell) => listenCell(cell),
+    onActivate: (cell) => {
+      if (!state.loading) listenCell(cell);
+    },
     onMove: (cell) => {
+      if (state.loading) return;
       showCell(cell);
       if (state.mode === 'explore') engine.playCell(cell);
     },
@@ -106,6 +115,13 @@ export function createJukebox(playlist) {
 
   async function togglePlay() {
     if (!state.current) return;
+    if (state.loading) {
+      // Aún se analiza la imagen: arrancará en cuanto esté lista.
+      state.playWhenReady = !state.playWhenReady;
+      setPlayingUI(state.playWhenReady);
+      announce(state.playWhenReady ? 'Cargando la imagen; sonará en cuanto esté lista.' : 'Pausado.');
+      return;
+    }
     if (engine.isPlaying()) {
       engine.pause();
       setPlayingUI(false);
@@ -141,11 +157,13 @@ export function createJukebox(playlist) {
   }
 
   async function selectItem(item, { speak = true } = {}) {
-    const wasPlaying = engine.isPlaying();
+    state.playWhenReady = state.playWhenReady || engine.isPlaying();
     engine.stop();
     grid.highlight(null);
     const token = ++state.loadToken;
     state.current = item;
+    state.loading = true;
+    $('grid').setAttribute('aria-busy', 'true');
 
     el.title.textContent = item.title;
     el.theme.textContent = capitalize(item.theme);
@@ -166,13 +184,24 @@ export function createJukebox(playlist) {
       el.cell.textContent = 'Elige una celda con el ratón o con las flechas del teclado.';
       announce(`Imagen cargada: ${item.title}.`);
       if (speak) narrate(`${item.title}. ${analysis.summary}`);
-      if (wasPlaying) await play();
+      finishLoading();
+      if (state.playWhenReady) await play();
       else setPlayingUI(false);
+      state.playWhenReady = false;
     } catch (err) {
       console.error(err);
+      if (token !== state.loadToken) return;
+      finishLoading();
+      state.playWhenReady = false;
+      setPlayingUI(false);
       el.summary.textContent = 'No se pudo analizar esta imagen.';
       announce(`No se pudo cargar la imagen ${item.title}.`);
     }
+  }
+
+  function finishLoading() {
+    state.loading = false;
+    $('grid').removeAttribute('aria-busy');
   }
 
   function step(delta) {
@@ -232,7 +261,7 @@ export function createJukebox(playlist) {
         const theme = document.createElement('span');
         theme.className = 'theme-chip';
         theme.dataset.theme = item.theme;
-        theme.textContent = capitalize(item.theme);
+        theme.textContent = capitalize(item.theme) + (item.live ? ' · en vivo' : '');
         text.append(title, theme);
         b.append(img, text);
         b.addEventListener('click', () => selectItem(item));
@@ -278,6 +307,29 @@ export function createJukebox(playlist) {
     renderNarration();
     engine.duck(false);
     announce(narrator.isEnabled() ? 'Narración activada.' : 'Narración desactivada.');
+  });
+
+  // --- Catálogo en vivo (opcional) ------------------------------------------------
+  el.live.addEventListener('click', async () => {
+    el.live.disabled = true;
+    el.liveStatus.textContent = 'Buscando visualizaciones en NASA SVS…';
+    announce('Buscando visualizaciones en NASA SVS.');
+    try {
+      const items = await fetchCatalog({ exclude: playlist.map((p) => p.id) });
+      const fresh = items.filter((i) => !playlist.some((p) => p.id === i.id));
+      playlist.push(...fresh);
+      setFilter(state.filter);
+      const msg = `Se ${fresh.length === 1 ? 'añadió 1 visualización' : `añadieron ${fresh.length} visualizaciones`} del catálogo en vivo (textos originales en inglés).`;
+      el.liveStatus.textContent = msg;
+      announce(msg);
+      el.live.hidden = true;
+    } catch (err) {
+      console.warn('Catálogo en vivo no disponible:', err);
+      const msg = 'El catálogo en vivo no está disponible ahora; seguimos con la lista curada.';
+      el.liveStatus.textContent = msg;
+      announce(msg);
+      el.live.disabled = false;
+    }
   });
 
   // --- Inicio (sin sonido: el audio solo empieza tras una acción del usuario) ---

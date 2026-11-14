@@ -2,3 +2,10 @@
   base = "frontend"
   command = "npm run build"
   publish = "dist"
+
+# Proxy hacia NASA SVS para el catálogo en vivo (SVS no permite CORS a otros dominios).
+[[redirects]]
+  from = "/svs/*"
+  to = "https://svs.gsfc.nasa.gov/:splat"
+  status = 200
+  force = true

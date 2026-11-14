@@ -613,3 +613,21 @@ kbd {
     padding: 8px 16px 32px;
   }
 }
+
+/* --- Catálogo en vivo --------------------------------------------------------- */
+.live {
+  margin-top: 16px;
+}
+
+.live .btn-toggle {
+  width: 100%;
+  min-height: 44px;
+}
+
+.live .hint {
+  margin: 8px 0 0;
+}
+
+.live .hint:empty {
+  display: none;
+}
