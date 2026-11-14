@@ -293,6 +293,7 @@
     <main class="layout">
       <section class="player" id="reproductor" tabindex="-1" aria-labelledby="player-title">
         <h2 id="player-title" class="visually-hidden">Reproductor</h2>
+        <div class="stage">
         <div class="device">
           <div class="screen">
             <figure class="screen-figure">
@@ -338,7 +339,11 @@
               <output id="tempo-out" for="tempo">120 bpm</output>
             </div>
             <button type="button" class="btn-toggle" id="btn-narration" aria-pressed="true">Narración<span aria-hidden="true">: activada</span></button>
+            <button type="button" class="btn-toggle" id="btn-motion" aria-pressed="false">Pausar animación</button>
           </div>
+        </div>
+        <!-- Avatar decorativo que reacciona al audio (components/earth-avatar.js) -->
+        <div class="avatar" id="earth-avatar"></div>
         </div>
         <p id="status" class="status" role="status" aria-live="polite"></p>
       </section>

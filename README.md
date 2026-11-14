@@ -15,6 +15,7 @@ Las visualizaciones de la Tierra de NASA (temperatura del mar, hielo ártico, ll
 - **Rocola**: eliges una imagen de NASA como si fuera un álbum, con Anterior / Reproducir-Pausa / Siguiente y un menú que filtra por tema (clima, temperatura, océanos, hielo, vegetación).
 - **Modo automático**: la imagen suena como una partitura, columna por columna de izquierda a derecha; cada columna es un arpegio de 9 celdas (de arriba abajo) y la celda que suena se resalta.
 - **Modo exploración**: recorres la cuadrícula con las flechas o el ratón y cada celda suena al instante, con su descripción en texto.
+- **Avatar que escucha**: junto a la rocola, una Tierra con auriculares reacciona al audio (nivel, graves, medios y 5 bandas del espectro con `Tone.Meter` y `Tone.FFT`); el giro sigue el tempo, la aurora toma el color de la celda que suena y destella suavemente en las celdas inusuales.
 - **Narración**: al cambiar de imagen, una voz en español lee el título y un resumen generado del análisis (se puede desactivar).
 - **Catálogo en vivo** (opcional): el botón "Añadir más del catálogo en vivo de NASA" busca en la SVS API más visualizaciones de la categoría *Earth* y las añade a la rocola (textos originales en inglés). Si la API no responde, la app sigue con la lista curada.
 
@@ -68,6 +69,7 @@ Usamos el croma (máx − mín de RGB) como "saturación" porque la S de HSL se 
 - Región `aria-live="polite"` que anuncia la imagen cargada, reproducción, pausa, fin, cambio de modo, filtros y la celda escuchada.
 - **Narración** con Web Speech API en español, con botón para activarla o desactivarla (`aria-pressed`); la música baja de volumen mientras habla.
 - Texto alternativo propio en español para cada imagen y resumen generado del análisis.
+- El avatar es decorativo (`aria-hidden`). El botón **Pausar animación** congela todas las animaciones sin tocar el audio (2.2.2); con `prefers-reduced-motion` queda estático, y los destellos están limitados a uno cada 400 ms (2.3.1).
 - El audio **nunca** empieza sin una acción del usuario; pausa y volumen siempre visibles (1.4.2).
 - Contraste de texto ≥ 7:1 en el peor caso; bordes de controles ≥ 3:1; objetivos ≥ 24 × 24 px; respeta `prefers-reduced-motion` y el modo de alto contraste de Windows.
 
@@ -84,6 +86,7 @@ frontend/
 ├── public/images/                  copias locales de las visualizaciones
 └── src/
     ├── main.js
+    ├── assets/earth-avatar.svg         avatar animado (Tierra con auriculares)
     ├── data/playlist.json
     ├── api/nasa-api.js                 catálogo en vivo (búsqueda + detalles, caché)
     ├── processing/image-processor.js   Canvas → cuadrícula 16 × 9
@@ -93,6 +96,8 @@ frontend/
     ├── visualization/grid-renderer.js  cuadrícula accesible con D3
     ├── accessibility/narrator.js       Web Speech API
     ├── components/jukebox.js           interfaz de la rocola
+    ├── components/earth-avatar.js      avatar que reacciona al audio
+    ├── components/loader.js            pantalla de carga
     └── styles/                         main.css, accessibility.css
 ```
 

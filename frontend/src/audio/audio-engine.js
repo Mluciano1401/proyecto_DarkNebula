@@ -30,6 +30,10 @@ const volumeToDb = (v) => (v <= 0.001 ? -Infinity : 20 * Math.log10(v) - 6);
 
 async function build() {
   const limiter = new Tone.Limiter(-1).toDestination();
+  // Un solo analizador (nivel + espectro) sobre la salida final, para la animación.
+  const meter = new Tone.Meter({ smoothing: 0.8 });
+  const fft = new Tone.FFT({ size: 64 });
+  limiter.fan(meter, fft);
   const duck = new Tone.Gain(1).connect(limiter); // baja la música mientras habla el narrador
   const master = new Tone.Volume(volumeToDb(state.volume)).connect(duck);
   const reverb = new Tone.Reverb({ decay: 2.2, wet: 0.22 }).connect(master);
@@ -57,7 +61,7 @@ async function build() {
   bass.volume.value = -18;
 
   await reverb.ready;
-  nodes = { limiter, duck, master, reverb, panner, filter, soft, bright, bell, bass };
+  nodes = { limiter, meter, fft, duck, master, reverb, panner, filter, soft, bright, bell, bass };
   applyInstrument();
 }
 
@@ -183,6 +187,31 @@ export function stop() {
 }
 
 export const isPlaying = () => state.playing;
+
+// --- Niveles para la animación ----------------------------------------------------
+// 64 bins de ~350–375 Hz (según la frecuencia de muestreo). Bandas en escala
+// logarítmica: ~0–375 Hz, 375–750, 750–1500, 1500–3000 y 3000–9000 Hz.
+const BAND_BINS = [[0, 1], [1, 2], [2, 4], [4, 8], [8, 24]];
+const clamp01 = (x) => Math.min(1, Math.max(0, x));
+// dB → 0..1 dentro de una ventana perceptiva. La ganancia lineal pura (dbToGain) da
+// ~0,01–0,05 con esta música, y la animación casi no se movería.
+const fromDb = (db, [floor, ceil]) => clamp01((db - floor) / (ceil - floor));
+const LEVEL_DB = [-50, -15];
+const BAND_DB = [-85, -35];
+const SILENT = Object.freeze({ level: 0, bass: 0, mid: 0, high: 0, bands: [0, 0, 0, 0, 0] });
+
+// Devuelve { level, bass, mid, high, bands[5] } normalizados de 0 a 1.
+export function getAudioLevels() {
+  if (!nodes) return SILENT;
+  const level = fromDb(nodes.meter.getValue(), LEVEL_DB);
+  const spectrum = nodes.fft.getValue(); // dB por bin
+  const bands = BAND_BINS.map(([a, b]) => {
+    let sum = 0;
+    for (let i = a; i < b; i++) sum += fromDb(spectrum[i], BAND_DB);
+    return sum / (b - a);
+  });
+  return { level, bass: bands[0], mid: (bands[1] + bands[2] + bands[3]) / 3, high: bands[4], bands };
+}
 
 // Modo exploración: la celda suena al instante.
 export async function playCell(cell) {

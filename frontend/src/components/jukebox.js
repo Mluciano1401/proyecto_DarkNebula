@@ -7,6 +7,7 @@ import * as engine from '../audio/audio-engine.js';
 import { createGrid } from '../visualization/grid-renderer.js';
 import * as narrator from '../accessibility/narrator.js';
 import { fetchCatalog } from '../api/nasa-api.js';
+import * as avatar from './earth-avatar.js';
 
 const $ = (id) => document.getElementById(id);
 const THEME_ORDER = ['clima', 'temperatura', 'océanos', 'hielo', 'vegetación'];
@@ -34,6 +35,7 @@ export function createJukebox(initialPlaylist) {
     tempo: $('tempo'),
     tempoOut: $('tempo-out'),
     narration: $('btn-narration'),
+    motion: $('btn-motion'),
     live: $('btn-live'),
     liveStatus: $('live-status'),
     modes: document.querySelectorAll('input[name="mode"]'),
@@ -92,6 +94,7 @@ export function createJukebox(initialPlaylist) {
     onCell: (cell) => {
       grid.highlight(cell);
       showCell(cell);
+      avatar.reactToCell(cell);
     },
     onEnd: () => {
       grid.highlight(null);
@@ -104,6 +107,7 @@ export function createJukebox(initialPlaylist) {
   function setPlayingUI(playing) {
     el.play.classList.toggle('is-playing', playing);
     el.albums.classList.toggle('is-playing', playing); // el vinilo del álbum actual gira
+    avatar.setPlaying(playing);
     el.play.setAttribute('aria-label', playing ? 'Pausar' : 'Reproducir');
     el.label.textContent = playing ? 'Sonando' : 'Seleccionada';
   }
@@ -323,6 +327,16 @@ export function createJukebox(initialPlaylist) {
     announce(narrator.isEnabled() ? 'Narración activada.' : 'Narración desactivada.');
   });
 
+  // "Pausar animación" (WCAG 2.2.2): congela el avatar y las demás animaciones
+  // decorativas sin tocar el audio. Nombre fijo + aria-pressed, como Narración.
+  el.motion.addEventListener('click', () => {
+    const paused = el.motion.getAttribute('aria-pressed') !== 'true';
+    el.motion.setAttribute('aria-pressed', String(paused));
+    document.documentElement.classList.toggle('motion-paused', paused);
+    avatar.setFrozen(paused);
+    announce(paused ? 'Animación pausada.' : 'Animación reanudada.');
+  });
+
   // --- Catálogo en vivo (opcional) ------------------------------------------------
   el.live.addEventListener('click', async () => {
     el.live.disabled = true;
@@ -347,6 +361,7 @@ export function createJukebox(initialPlaylist) {
   });
 
   // --- Inicio (sin sonido: el audio solo empieza tras una acción del usuario) ---
+  avatar.mountEarthAvatar($('earth-avatar'));
   engine.setVolume(el.volume.value / 100);
   engine.setTempo(+el.tempo.value);
   renderNarration();
