@@ -1,0 +1,195 @@
+// Motor de sonido con Tone.js. El audio SOLO arranca tras un gesto del usuario
+// (ensureAudio se llama desde manejadores de clic o tecla).
+
+import * as Tone from 'tone';
+import { mapCell, tempoFor, bassForBrightness, INSTRUMENTS, DEFAULT_INSTRUMENT } from './mapping.js';
+
+// Cada celda dura una corchea de tresillo: las 9 celdas de una columna forman un
+// arpegio de 3 tiempos. Programar celda a celda permite que la pausa sea inmediata.
+const STEP = '8t';
+
+let nodes = null;
+const state = {
+  analysis: null,
+  mapped: [],
+  step: 0,
+  playing: false,
+  repeatId: null,
+  baseTempo: 120,
+  volume: 0.7,
+  theme: null,
+};
+const handlers = { onCell: () => {}, onEnd: () => {} };
+
+export function setHandlers({ onCell, onEnd } = {}) {
+  if (onCell) handlers.onCell = onCell;
+  if (onEnd) handlers.onEnd = onEnd;
+}
+
+const volumeToDb = (v) => (v <= 0.001 ? -Infinity : 20 * Math.log10(v) - 6);
+
+async function build() {
+  const limiter = new Tone.Limiter(-1).toDestination();
+  const duck = new Tone.Gain(1).connect(limiter); // baja la música mientras habla el narrador
+  const master = new Tone.Volume(volumeToDb(state.volume)).connect(duck);
+  const reverb = new Tone.Reverb({ decay: 2.2, wet: 0.22 }).connect(master);
+  const panner = new Tone.Panner(0).connect(reverb);
+  const filter = new Tone.Filter(DEFAULT_INSTRUMENT.cutoff, 'lowpass').connect(panner);
+
+  const envelope = { attack: 0.01, decay: 0.15, sustain: 0.5, release: DEFAULT_INSTRUMENT.release };
+  const soft = new Tone.PolySynth(Tone.Synth, { oscillator: { type: DEFAULT_INSTRUMENT.soft }, envelope }).connect(panner);
+  const bright = new Tone.PolySynth(Tone.Synth, { oscillator: { type: DEFAULT_INSTRUMENT.bright }, envelope }).connect(filter);
+  soft.volume.value = -6;
+  bright.volume.value = -14;
+
+  const bell = new Tone.FMSynth({
+    harmonicity: 3.01,
+    modulationIndex: 10,
+    envelope: { attack: 0.001, decay: 0.9, sustain: 0, release: 0.6 },
+    modulationEnvelope: { attack: 0.002, decay: 0.3, sustain: 0, release: 0.3 },
+  }).connect(panner);
+  bell.volume.value = -16;
+
+  const bass = new Tone.Synth({
+    oscillator: { type: 'sine' },
+    envelope: { attack: 0.2, decay: 0.3, sustain: 0.7, release: 1.2 },
+  }).connect(reverb);
+  bass.volume.value = -18;
+
+  await reverb.ready;
+  nodes = { limiter, duck, master, reverb, panner, filter, soft, bright, bell, bass };
+  applyInstrument();
+}
+
+export async function ensureAudio() {
+  await Tone.start();
+  if (!nodes) await build();
+}
+
+function applyInstrument() {
+  if (!nodes) return;
+  const inst = INSTRUMENTS[state.theme] ?? DEFAULT_INSTRUMENT;
+  nodes.soft.set({ oscillator: { type: inst.soft }, envelope: { release: inst.release } });
+  nodes.bright.set({ oscillator: { type: inst.bright }, envelope: { release: inst.release } });
+  nodes.filter.frequency.value = inst.cutoff;
+}
+
+// Toca una celda ya mapeada dentro de una ranura de tiempo `slot` (segundos).
+function playMapped(m, time, slot) {
+  const { soft, bright, bell } = nodes;
+  const each = slot / m.pulses;
+  const dur = m.pulses === 1 ? slot * 0.9 : each * 0.55;
+  for (let p = 0; p < m.pulses; p++) {
+    const t = time + p * each;
+    const vs = m.velocity * m.timbre.soft;
+    const vb = m.velocity * m.timbre.bright;
+    if (vs > 0.04) soft.triggerAttackRelease(m.note, dur, t, vs);
+    if (vb > 0.04) bright.triggerAttackRelease(m.note, dur, t, vb);
+  }
+  if (m.accent) bell.triggerAttackRelease(Tone.Frequency(m.note).transpose(12).toNote(), 0.25, time, 0.7);
+}
+
+const cellAt = (row, col) => state.analysis.cells[row * state.analysis.cols + col];
+
+// Modo automático: columna por columna de izquierda a derecha; dentro de cada
+// columna, arpegio de arriba abajo (fila 1 → fila 9), en orden de lectura.
+function onStep(time) {
+  const { cols, rows } = state.analysis;
+  const draw = Tone.getDraw();
+  const k = state.step++;
+  const col = Math.floor(k / rows);
+  const row = k % rows;
+  if (col >= cols) {
+    draw.schedule(() => {
+      stop();
+      handlers.onEnd();
+    }, time);
+    return;
+  }
+  const noteSlot = Tone.Time(STEP).toSeconds();
+  if (row === 0) {
+    nodes.panner.pan.setValueAtTime(state.mapped[col].pan, time);
+    let avg = 0;
+    for (let r = 0; r < rows; r++) avg += cellAt(r, col).brightnessN / rows;
+    nodes.bass.triggerAttackRelease(bassForBrightness(avg), noteSlot * rows * 0.95, time, 0.6);
+  }
+  const cell = cellAt(row, col);
+  playMapped(state.mapped[row * cols + col], time, noteSlot);
+  draw.schedule(() => handlers.onCell(cell, 'auto'), time);
+}
+
+function silence() {
+  if (!nodes) return;
+  nodes.soft.releaseAll();
+  nodes.bright.releaseAll();
+  nodes.bass.triggerRelease();
+}
+
+export function setAnalysis(analysis, theme) {
+  stop();
+  state.analysis = analysis;
+  state.mapped = analysis.cells.map((c) => mapCell(c, analysis.cols));
+  state.theme = theme;
+  applyInstrument();
+  applyTempo();
+}
+
+function applyTempo() {
+  Tone.getTransport().bpm.value = tempoFor(state.baseTempo, state.analysis?.contrast ?? 0.5);
+}
+
+export function setTempo(bpm) {
+  state.baseTempo = bpm;
+  applyTempo();
+}
+export const getTempo = () => Math.round(Tone.getTransport().bpm.value);
+
+export function setVolume(v) {
+  state.volume = v;
+  if (nodes) nodes.master.volume.rampTo(volumeToDb(v), 0.05);
+}
+
+export function duck(on) {
+  if (nodes) nodes.duck.gain.rampTo(on ? 0.3 : 1, 0.25);
+}
+
+export async function play() {
+  if (!state.analysis) return;
+  await ensureAudio();
+  const transport = Tone.getTransport();
+  if (state.repeatId === null) {
+    state.step = 0;
+    transport.position = 0;
+    state.repeatId = transport.scheduleRepeat(onStep, STEP, 0);
+  }
+  transport.start('+0.05');
+  state.playing = true;
+}
+
+export function pause() {
+  Tone.getTransport().pause();
+  state.playing = false;
+  silence();
+}
+
+export function stop() {
+  const transport = Tone.getTransport();
+  transport.stop();
+  if (state.repeatId !== null) transport.clear(state.repeatId);
+  state.repeatId = null;
+  state.step = 0;
+  state.playing = false;
+  silence();
+}
+
+export const isPlaying = () => state.playing;
+
+// Modo exploración: la celda suena al instante.
+export async function playCell(cell) {
+  if (!state.analysis) return;
+  await ensureAudio();
+  const m = state.mapped[cell.row * state.analysis.cols + cell.col];
+  const now = Tone.now() + 0.02;
+  nodes.panner.pan.setValueAtTime(m.pan, now);
+  playMapped(m, now, 0.7);
+}
