@@ -1,4 +1,4 @@
-// Carga una imagen local, la reduce y la divide en una cuadrícula de celdas.
+// Carga una imagen servida desde el mismo origen, la reduce y la divide en celdas.
 // Cada celda devuelve su color medio (r, g, b) y estadísticas de luminancia.
 
 export const COLS = 16;

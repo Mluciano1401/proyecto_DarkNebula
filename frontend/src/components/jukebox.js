@@ -10,10 +10,23 @@ import { fetchCatalog, fetchCuratedImages } from '../api/nasa-api.js';
 import * as avatar from './earth-avatar.js';
 
 const $ = (id) => document.getElementById(id);
-const THEME_ORDER = ['clima', 'temperatura', 'océanos', 'hielo', 'vegetación', 'espacio'];
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const nasaInfoText = (item) => [
+  'Sonificación actual: rasgos visuales de la imagen; no equivale a los datos numéricos originales de NASA.',
+  item.description,
+  item.pageType && `Tipo: ${item.pageType}`,
+  item.categories?.length && `Categoría NASA: ${item.categories.join(', ')}`,
+  item.variables?.length && `Variables registradas por la API: ${item.variables.join(', ')}`,
+  item.units && `Unidades en la API: ${item.units}`,
+  item.period && `Periodo indicado por la API: ${item.period}`,
+  item.releaseDate && `Publicación NASA: ${item.releaseDate}`,
+  item.updateDate && `Actualización NASA: ${item.updateDate}`,
+  item.datasets?.length && `Conjuntos de datos: ${item.datasets.map((dataset) => [dataset.name, dataset.common_name, dataset.platform, dataset.sensor, dataset.description, dataset.date_range].filter(Boolean).join(' — ')).join('; ')}`,
+  item.keywords?.length && `Palabras clave NASA: ${item.keywords.join(', ')}`,
+  item.credit && `Créditos: ${item.credit}`,
+].filter(Boolean).join('\n\n');
 
-export function createJukebox(initialPlaylist) {
+export function createJukebox(initialPlaylist = []) {
   const playlist = [...initialPlaylist]; // crece si se carga el catálogo en vivo
   const el = {
     art: $('art'),
@@ -29,6 +42,7 @@ export function createJukebox(initialPlaylist) {
     desc: $('image-desc'),
     summary: $('image-summary'),
     link: $('nasa-link'),
+    apiLink: $('api-link'),
     cell: $('cell-info'),
     volume: $('volume'),
     volumeOut: $('volume-out'),
@@ -172,13 +186,14 @@ export function createJukebox(initialPlaylist) {
     $('grid').setAttribute('aria-busy', 'true');
 
     el.title.textContent = item.title;
-    el.theme.textContent = capitalize(item.theme);
+    el.theme.textContent = item.theme ? capitalize(item.theme) : '';
     el.theme.dataset.theme = item.theme;
     el.art.src = item.image;
     el.art.alt = item.altText;
-    el.desc.textContent = item.description;
+    el.desc.textContent = nasaInfoText(item);
     el.summary.textContent = 'Analizando la imagen…';
     el.link.href = item.nasaUrl;
+    el.apiLink.href = item.apiUrl;
     renderAlbums();
 
     try {
@@ -220,7 +235,7 @@ export function createJukebox(initialPlaylist) {
 
   // --- Menú: temas y álbumes -------------------------------------------------
   function renderThemes() {
-    const present = THEME_ORDER.filter((t) => playlist.some((p) => p.theme === t));
+    const present = [...new Set(playlist.map((item) => item.theme).filter(Boolean))].sort((a, b) => a.localeCompare(b));
     const options = ['todos', ...present];
     el.themes.replaceChildren(
       ...options.map((t) => {
@@ -279,8 +294,8 @@ export function createJukebox(initialPlaylist) {
         const text = span('album-text');
         text.append(
           span('album-title', item.title),
-          span('album-artist', 'NASA SVS'),
-          span('theme-chip', capitalize(item.theme) + (item.live ? ' · en vivo' : '')),
+          span('album-artist', item.credit || ''),
+          item.theme ? span('theme-chip', capitalize(item.theme) + (item.live ? ' · en vivo' : '')) : document.createTextNode(''),
         );
         b.append(art, text);
         b.addEventListener('click', () => selectItem(item));
@@ -373,7 +388,7 @@ export function createJukebox(initialPlaylist) {
       el.live.hidden = true;
     } catch (err) {
       console.warn('Catálogo en vivo no disponible:', err);
-      const msg = 'El catálogo en vivo no está disponible ahora; seguimos con la lista curada.';
+      const msg = 'El catálogo en vivo no está disponible ahora. Inténtalo de nuevo cuando haya conexión.';
       el.liveStatus.textContent = msg;
       announce(msg);
       el.live.disabled = false;
@@ -386,10 +401,9 @@ export function createJukebox(initialPlaylist) {
   engine.setTempo(+el.tempo.value);
   renderNarration();
   renderThemes();
-  // Primero deja utilizable la playlist local. Después intenta añadir las diez
-  // carátulas oficiales desde sus API; si la red falla, la rocola local continúa.
+  // Los metadatos e imágenes de la colección curada se consultan desde NASA SVS;
+  // el proyecto solo conserva la selección de identificadores.
   return (async () => {
-    if (playlist.length) await selectItem(playlist[0], { speak: false });
     try {
       el.liveStatus.textContent = 'Cargando imágenes oficiales de NASA SVS…';
       const { items: images, failedIds } = await fetchCuratedImages();
@@ -397,7 +411,7 @@ export function createJukebox(initialPlaylist) {
       playlist.push(...fresh);
       setFilter(state.filter);
       renderThemes();
-      const loadedMessage = `${fresh.length} imágenes de las API de NASA cargadas y añadidas a la rocola.`;
+      const loadedMessage = `${fresh.length} imágenes y sus metadatos cargados desde las API de NASA.`;
       const message = failedIds.length
         ? `${loadedMessage} No cargaron las imágenes ${failedIds.join(', ')}.`
         : loadedMessage;
@@ -406,8 +420,11 @@ export function createJukebox(initialPlaylist) {
       announce(message);
     } catch (err) {
       console.warn('No se pudo cargar el catálogo curado NASA:', err);
-      el.liveStatus.textContent = 'Las imágenes de NASA no están disponibles ahora; seguimos con las imágenes locales.';
-      announce('No se pudieron cargar las imágenes NASA. Sigue disponible la colección local.');
+      const message = 'No se pudieron cargar los metadatos e imágenes de NASA SVS. Comprueba la conexión y el proxy.';
+      el.liveStatus.textContent = message;
+      el.title.textContent = 'Catálogo de NASA no disponible';
+      el.summary.textContent = message;
+      announce(message);
     }
   })();
 }
