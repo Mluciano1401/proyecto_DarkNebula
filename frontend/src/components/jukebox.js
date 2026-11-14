@@ -406,12 +406,15 @@ export function createJukebox(initialPlaylist = []) {
   return (async () => {
     try {
       el.liveStatus.textContent = 'Cargando imágenes oficiales de NASA SVS…';
-      const { items: images, failedIds } = await fetchCuratedImages();
+      const { items: images, failedIds, snapshotDate } = await fetchCuratedImages();
       const fresh = images.filter((item) => !playlist.some((existing) => existing.id === item.id));
       playlist.push(...fresh);
       setFilter(state.filter);
       renderThemes();
-      const loadedMessage = `${fresh.length} imágenes y sus metadatos cargados desde las API de NASA.`;
+      // Sin proxy (GitHub Pages) los metadatos vienen de la copia de la API guardada al desplegar.
+      const loadedMessage = snapshotDate
+        ? `${fresh.length} imágenes y sus metadatos de NASA SVS (copia de la API del ${new Date(snapshotDate).toLocaleDateString('es')}).`
+        : `${fresh.length} imágenes y sus metadatos cargados desde las API de NASA.`;
       const message = failedIds.length
         ? `${loadedMessage} No cargaron las imágenes ${failedIds.join(', ')}.`
         : loadedMessage;

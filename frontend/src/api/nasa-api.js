@@ -49,6 +49,29 @@ async function getJson(path) {
   return res.json();
 }
 
+// Copia de las respuestas de la API que guarda scripts/fetch-images.mjs. Se usa cuando
+// no hay proxy /svs (GitHub Pages es estático y SVS solo permite CORS a otro dominio).
+let snapshotRequest = null;
+function loadSnapshot() {
+  snapshotRequest ??= fetch(`${import.meta.env.BASE_URL}data/svs-snapshot.json`).then((res) => {
+    if (!res.ok) throw new Error(`Copia de la API: HTTP ${res.status}`);
+    return res.json();
+  });
+  return snapshotRequest;
+}
+
+// Ficha de una pieza: en vivo si hay proxy; si no, la copia guardada.
+async function getDetails(id) {
+  try {
+    return { details: await getJson(`/api/${id}/`), snapshotDate: null };
+  } catch (error) {
+    const snapshot = await loadSnapshot().catch(() => null);
+    const saved = snapshot?.items?.[id];
+    if (!saved) throw error;
+    return { details: saved, snapshotDate: snapshot.generatedAt };
+  }
+}
+
 function apiImage(details) {
   const images = [details.main_image, ...(details.media_groups ?? []).flatMap((g) => (g.items ?? []).map((item) => item.instance))];
   return images.find((i) => i?.media_type === 'Image' && i.url && /\.(jpe?g|png)$/i.test(i.filename) && !/legend|color.?bar|_bar/i.test(i.filename)) ?? null;
@@ -83,7 +106,7 @@ async function resolveImageUrl(id, image) {
 
 export async function fetchCuratedImages() {
   const results = await Promise.allSettled(CURATED_IDS.map(async (id) => {
-    const details = await getJson(`/api/${id}/`);
+    const { details, snapshotDate } = await getDetails(id);
     const image = apiImage(details);
     if (!image) throw new Error(`La API ${id} no contiene una imagen fija`);
     const description = cleanDescription(details.description);
@@ -110,6 +133,7 @@ export async function fetchCuratedImages() {
       datasets: datasetsFromApi(details),
       sonificationType: details.page_type ?? 'visual-features',
       originalImage: { filename: image.filename, width: image.width, height: image.height },
+      snapshotDate,
     };
     await confirmImageLoads(item.image);
     return item;
@@ -123,6 +147,7 @@ export async function fetchCuratedImages() {
   return {
     items,
     failedIds: results.flatMap((result, index) => result.status === 'rejected' ? [CURATED_IDS[index]] : []),
+    snapshotDate: items.find((item) => item.snapshotDate)?.snapshotDate ?? null,
   };
 }
 

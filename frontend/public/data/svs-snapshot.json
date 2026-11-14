@@ -1,0 +1,627 @@
+{
+  "generatedAt": "2026-11-14T20:27:53.975Z",
+  "source": "https://svs.gsfc.nasa.gov/api/",
+  "items": {
+    "3912": {
+      "id": 3912,
+      "title": "Global Sea Surface Currents and Temperature",
+      "description": "This visualization shows sea surface current flows. The flows are colored by corresponding sea surface temperature data. This visualization is rendered for display on very high resolution devices like hyperwalls or for print media.This visualization was produced using model output from the joint MIT/JPL project entitled Estimating the Circulation and Climate of the Ocean, Phase II (ECCO2). ECCO2 uses the MIT general circulation model (MITgcm) to synthesize satellite and in-situ data of the global ocean and sea-ice at resolutions that begin to resolve ocean eddies and other narrow current systems, which transport heat and carbon in the oceans. The ECCO2 model simulates ocean flows at all depths, but only surface flows are used in this visualization. || ",
+      "url": "http://svs.gsfc.nasa.gov/3912/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2012-03-16T10:00:00-04:00",
+      "update_date": "2025-02-18T00:01:26.447913-05:00",
+      "keywords": [
+        "Climate Variability and Change",
+        "Earth Science",
+        "Hyperwall",
+        "ocean circulation",
+        "ocean currents",
+        "Oceans",
+        "Physical oceanography",
+        "Presentation"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "Greg Shirah",
+            "employer": "NASA/GSFC"
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "GTOPO30 Topography and Bathymetry",
+          "common_name": "",
+          "platform": null,
+          "sensor": null,
+          "type": "Data Compilation",
+          "organizations": [
+            "USGS"
+          ],
+          "description": "",
+          "credit": "",
+          "url": "",
+          "date_range": "3-2007 through 2-2008"
+        },
+        {
+          "name": "ECCO2 High Resolution Ocean and Sea Ice Model",
+          "common_name": "ECCO2",
+          "platform": null,
+          "sensor": null,
+          "type": "Model",
+          "organizations": [
+            "NASA/JPL"
+          ],
+          "description": "",
+          "credit": "",
+          "url": "",
+          "date_range": null
+        }
+      ],
+      "main_image": {
+        "id": 479018,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a003900/a003912/flat_global_ecco2_2028x1024.25000.jpg",
+        "filename": "flat_global_ecco2_2028x1024.25000.jpg",
+        "media_type": "Image",
+        "alt_text": "Global sea surface currents colored by temperature.  These are the assembled (contiguous) versions of the animation.  There are several resolutions to choose from, some are cropped for various purposes.  The 6840x3420 version is the complete, full resolution visualization at the appropriate 2x1 aspect ratio and has not been cropped or resized.  The time range for these visualizations is from 2007-03-25T12:00Z to 2008-03-03T12:00Z.",
+        "width": 2048,
+        "height": 1024,
+        "pixels": 2097152
+      }
+    },
+    "4950": {
+      "id": 4950,
+      "title": "GEDI Forest Height",
+      "description": "This visualization depicts a global view of forest height data collected by the GEDI instrument aboard the International Space Station.  Brown and dark green represent shorter vegetation.  Bright green and white represent taller vegetation.  This visualization uses data collected between April 2019 and April 2020. Height is exaggerated to depict variation at this scale.Coming soon to our YouTube channel. || GEDI_global_w_colorbar_0900_print.jpg (1024x576) [83.4 KB] || GEDI_global_w_colorbar_0900_searchweb.png (320x180) [42.8 KB] || GEDI_global_w_colorbar_0900_thm.png (80x40) [4.0 KB] || GEDI_global_w_colorbar_1080p60.mp4 (1920x1080) [17.7 MB] || GEDI_global_w_colorbar_1080p60.webm (1920x1080) [6.0 MB] || GEDI_global_w_colorbar (3840x2160) [0 Item(s)] || GEDI_global_w_colorbar_2160p30.mp4 (3840x2160) [61.5 MB] || GEDI_global_w_colorbar_2160p60.mp4 (3840x2160) [65.5 MB] || captions_silent.31845.en_US.srt [43 bytes] || ",
+      "url": "http://svs.gsfc.nasa.gov/4950/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2021-10-29T10:00:00-04:00",
+      "update_date": "2025-04-01T13:54:15.020681-04:00",
+      "keywords": [
+        "Agricultural science",
+        "Agriculture",
+        "Earth Science",
+        "Forest Science",
+        "Forestry",
+        "Hyperwall",
+        "ISS",
+        "Lidar"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "Kel Elkins",
+            "employer": "USRA"
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "Relative Height",
+          "common_name": "",
+          "platform": "GEDI",
+          "sensor": null,
+          "type": "Other",
+          "organizations": [],
+          "description": "RH100 or relative height is the 100th percentile of waveform energy relative to ground elevation. Derived from the L2B LIDAR metric RH100 data product.",
+          "credit": "",
+          "url": "https://gedi.umd.edu/",
+          "date_range": null
+        }
+      ],
+      "main_image": {
+        "id": 375814,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a004900/a004950/GEDI_global.0900_print.jpg",
+        "filename": "GEDI_global.0900_print.jpg",
+        "media_type": "Image",
+        "alt_text": "This visualization depicts a global view of forest height data collected by the GEDI instrument aboard the International Space Station.  Brown and dark green represent shorter vegetation.  Bright green and white represent taller vegetation.  This visualization uses data collected between April 2018 and April 2019. Height is exaggerated to depict variation at this scale. This version has no on screen color bar.",
+        "width": 1024,
+        "height": 576,
+        "pixels": 589824
+      }
+    },
+    "4960": {
+      "id": 4960,
+      "title": "A 3D View of an Atmospheric River from an Earth System Model",
+      "description": "Narrated atmospheric rivers movie. || atmos_rivers_narrated_4k.00090_print.jpg (1024x576) [88.5 KB] || atmos_rivers_narrated_4k.00090_print_searchweb.png (320x180) [46.0 KB] || atmos_rivers_narrated_HD.webm (1920x1080) [68.6 MB] || atmos_rivers_narrated_HD.mp4 (1920x1080) [410.9 MB] || atmos_river_narrated_4k.en_US.srt [6.3 KB] || atmos_river_narrated_4k.en_US.vtt [6.3 KB] || atmos_rivers_4k.en_US.vtt [6.3 KB] || atmos_rivers_narrated_4k.mp4 (3840x2160) [646.9 MB] ||",
+      "url": "http://svs.gsfc.nasa.gov/4960/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2022-01-25T14:00:00-05:00",
+      "update_date": "2025-04-23T17:09:14.695315-04:00",
+      "keywords": [
+        "Atmosphere",
+        "Atmospheric science",
+        "Atmospheric Water Vapor",
+        "Atmospheric Winds",
+        "Earth",
+        "Earth Science",
+        "Hyperwall",
+        "precipitation",
+        "Precipitation Rate"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "Greg Shirah",
+            "employer": "NASA/GSFC"
+          }
+        ],
+        "Produced by": [
+          {
+            "name": "Jefferson Beck",
+            "employer": "KBR Wyle Services, LLC"
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "GTOPO30 Topography and Bathymetry",
+          "common_name": "",
+          "platform": null,
+          "sensor": null,
+          "type": "Data Compilation",
+          "organizations": [
+            "USGS"
+          ],
+          "description": "",
+          "credit": "",
+          "url": "",
+          "date_range": null
+        },
+        {
+          "name": "Winds",
+          "common_name": "",
+          "platform": "MERRA-2",
+          "sensor": null,
+          "type": "Model",
+          "organizations": [],
+          "description": "",
+          "credit": "",
+          "url": "",
+          "date_range": null
+        },
+        {
+          "name": "MERRA-2",
+          "common_name": "MERRA-2",
+          "platform": null,
+          "sensor": null,
+          "type": "Model",
+          "organizations": [
+            "GMAO"
+          ],
+          "description": "",
+          "credit": "",
+          "url": "",
+          "date_range": null
+        }
+      ],
+      "main_image": {
+        "id": 374448,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a004900/a004960/atmos_rivers_narrated_4k.00090_print.jpg",
+        "filename": "atmos_rivers_narrated_4k.00090_print.jpg",
+        "media_type": "Image",
+        "alt_text": "Narrated atmospheric rivers movieComing soon to our YouTube channel.",
+        "width": 1024,
+        "height": 576,
+        "pixels": 589824
+      }
+    },
+    "5011": {
+      "id": 5011,
+      "title": "Lightning Events Detected from the International Space Station (ISS) 2017-2023",
+      "description": "Lightning events detected by the LIS sensor on the ISS between January 2017 and July 2023 using a 10-day roving window. Data is from the quality controlled science dataset. Available resolution in the download menu are 1920x1080, 3840x2160 (4k), and 7680x2160 (created for EIC display). || iss_lightning_preview.jpg (1024x576) [260.7 KB] || iss_lightning_preview_searchweb.png (320x180) [59.3 KB] || iss_lightning_preview_thm.png (80x40) [4.9 KB] || iss_lightning_sphere_07312023.mp4 (1920x1080) [127.0 MB] || iss_lightning_sphere_07312023_60p4k.mp4 (3840x2160) [414.2 MB] || iss_lightning_eic_display_2160p30_h2652.mp4 (7680x2160) [579.9 MB] || iss_lightning_sphere_07312023.mp4.hwshow || ",
+      "url": "http://svs.gsfc.nasa.gov/5011/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2023-10-19T00:00:00-04:00",
+      "update_date": "2025-03-28T00:14:18.798297-04:00",
+      "keywords": [
+        "Earth Information Center",
+        "Eic (earth information center) display",
+        "Hyperwall",
+        "International Space Station",
+        "ISS",
+        "Lightning",
+        "Lightning Imaging Sensor",
+        "Science On a Sphere"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "Michala Garrison",
+            "employer": "SSAI"
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "CPC (Climate Prediction Center) Cloud Composite",
+          "common_name": "",
+          "platform": null,
+          "sensor": null,
+          "type": "Data Compilation",
+          "organizations": [
+            "Climate Prediction Center (CPC)"
+          ],
+          "description": "Global cloud cover from multiple satellites",
+          "credit": "",
+          "url": "",
+          "date_range": null
+        },
+        {
+          "name": "Gray Earth with Shaded Relief, Hypsography, and Flat Water",
+          "common_name": "Gray Earth",
+          "platform": null,
+          "sensor": null,
+          "type": "Other",
+          "organizations": [
+            "Natrual Earth"
+          ],
+          "description": "",
+          "credit": "",
+          "url": "https://www.naturalearthdata.com/downloads/10m-raster-data/10m-gray-earth/",
+          "date_range": null
+        },
+        {
+          "name": "Quality Controlled Lightning Imaging Sensor (LIS) on International Space Station (ISS) Science Data V1",
+          "common_name": "International Space Station (ISS) Lightning Imaging Sensor (LIS)",
+          "platform": null,
+          "sensor": "Lightning Imaging Sensor (LIS)",
+          "type": "Other",
+          "organizations": [
+            "NASA Global Hydrometeorology Resource Center DAAC"
+          ],
+          "description": "The Quality Controlled Lightning Imaging Sensor (LIS) on International Space Station (ISS) Science Data dataset was collected by the LIS instrument mounted on the ISS and are used to detect the distribution and variability of total lightning occurring in the Earth’s tropical and subtropical regions.",
+          "credit": "",
+          "url": "https://ghrcdrive.nsstc.nasa.gov/pub/lis/iss/data/science/final/nc/",
+          "date_range": null
+        },
+        {
+          "name": "Land Cover Climate Modeling Grid (CMG)",
+          "common_name": "MCD12C1",
+          "platform": null,
+          "sensor": "MODIS",
+          "type": "Model",
+          "organizations": [
+            "USGS"
+          ],
+          "description": "The Terra and Aqua combined Moderate Resolution Imaging Spectroradiometer (MODIS) Land Cover Climate Modeling Grid (CMG) (MCD12C1) Version 6 data product provides a spatially aggregated and reprojected version of the tiled MCD12Q1 Version 6 data product. The dataset provides global land cover types at yearly intervals using International Geosphere-Biosphere Programme (IGBP), University of Maryland (UMD), and Leaf Area Index (LAI) classification schemes.",
+          "credit": "Friedl, M., D. Sulla-Menashe.  <i>MCD12C1 MODIS/Terra+Aqua Land Cover Type Yearly L3 Global 0.05Deg CMG V006</i>. 2015, distributed by NASA EOSDIS Land Processes DAAC, https://doi.org/10.5067/MODIS/MCD12C1.006. Accessed 2022-08-25.",
+          "url": "https://lpdaac.usgs.gov/products/mcd12c1v006/",
+          "date_range": null
+        }
+      ],
+      "main_image": {
+        "id": 859220,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a005000/a005011/iss_lightning_preview.jpg",
+        "filename": "iss_lightning_preview.jpg",
+        "media_type": "Image",
+        "alt_text": "Lightning events detected by the LIS sensor on the ISS between January 2017 and July 2023 using a 10-day roving window. Data is from the quality controlled science dataset. Available resolution in the download menu are 1920x1080, 3840x2160 (4k), and 7680x2160 (created for EIC display).",
+        "width": 1024,
+        "height": 576,
+        "pixels": 589824
+      }
+    },
+    "5196": {
+      "id": 5196,
+      "title": "DYAMOND Global Carbon Dioxide",
+      "description": "Global CO2 ppm for January-March of 2020. This camera move orbits the Earth from a distance. || dyamondPointCloud_12-1-2023b_dyamond_co2_anim_globe_orbit_3x3Hyperwall.00200_print.jpg (1024x576) [46.2 KB] || dyamondPointCloud_12-1-2023b_dyamond_co2_anim_globe_orbit_3x3Hyperwall.00200_searchweb.png (320x180) [31.3 KB] || dyamondPointCloud_12-1-2023b_dyamond_co2_anim_globe_orbit_3x3Hyperwall.00200_web.png (320x180) [31.3 KB] || dyamondPointCloud_12-1-2023b_dyamond_co2_anim_globe_orbit_3x3Hyperwall.00200_thm.png (80x40) [3.0 KB] || dyamondPointCloud_12-1-2023b_dyamond_co2_anim_globe_orbit_1080p30_h265.mp4 (1920x1080) [6.9 MB] || dyamondPointCloud_12-1-2023b_dyamond_co2_anim_globe_orbit_3x3Hyperwall (5760x3240) [0 Item(s)] || dyamondPointCloud_12-1-2023b_dyamond_co2_anim_globe_orbit_2160p30.mp4 (3840x2160) [68.4 MB] || ",
+      "url": "http://svs.gsfc.nasa.gov/5196/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2024-07-22T09:00:00-04:00",
+      "update_date": "2025-06-23T00:16:15.106632-04:00",
+      "keywords": [
+        "Carbon Dioxide",
+        "Eic (earth information center) display",
+        "Hyperwall"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "AJ Christensen",
+            "employer": "SSAI"
+          }
+        ],
+        "Scientific consulting by": [
+          {
+            "name": "Lesley Ott",
+            "employer": "NASA/GSFC"
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "DYAMOND",
+          "common_name": "",
+          "platform": null,
+          "sensor": null,
+          "type": "Model",
+          "organizations": [
+            "NASA/JPL, NASA/GMAO"
+          ],
+          "description": "The data from the experimental coupled GEOS-MITgcm model known as DYAMOND that was run on NASA Advanced Supercomputing facility.",
+          "credit": "",
+          "url": "",
+          "date_range": null
+        }
+      ],
+      "main_image": {
+        "id": 1087887,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a005100/a005196/dyamondPointCloud_12-1-2023b_dyamond_co2_anim_globe_orbit_3x3Hyperwall.00200_print.jpg",
+        "filename": "dyamondPointCloud_12-1-2023b_dyamond_co2_anim_globe_orbit_3x3Hyperwall.00200_print.jpg",
+        "media_type": "Image",
+        "alt_text": "Global CO2 ppm for January-March of 2020. This camera move orbits the Earth from a distance.",
+        "width": 1024,
+        "height": 576,
+        "pixels": 589824
+      }
+    },
+    "5313": {
+      "id": 5313,
+      "title": "Change in Night Lights between 2012 and 2023 - EIC Version",
+      "description": "This global, flat map view of night lights data begins with a time series depicting annual averages from 2012 to 2023. The lights then fade away to reveal night lights change between 2012 and 2023, with regions of more light depicted in purple and regions with less light depicted in orange. The sequence then repeats with pop-out, zoomed-in views of India, Ukraine, Western Europe, and the Eastern Mediterranean region. || nightlights_flat_series_and_change_wZooms_13_EIC.02599_print.jpg (1024x288) [62.0 KB] || nightlights_flat_series_and_change_wZooms_13_EIC.02599_searchweb.png (320x180) [49.9 KB] || nightlights_flat_series_and_change_wZooms_13_EIC.02599_thm.png (80x40) [4.6 KB] || nightlights_2012-2023_change_flat_eic [0 Item(s)] || nightlights_flat_series_and_change_wZooms_13_EIC_2160p30_h265.mp4 (7680x2160) [32.7 MB] || nightlights_flat_series_and_change_wZooms_13_EIC_prores.mov (7680x2160) [4.0 GB] || ",
+      "url": "http://svs.gsfc.nasa.gov/5313/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2024-06-14T00:00:00-04:00",
+      "update_date": "2024-06-14T15:53:06.224162-04:00",
+      "keywords": [
+        "Black Marble",
+        "Earth",
+        "Night",
+        "Night lights",
+        "VIIRS"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "Kel Elkins",
+            "employer": "USRA"
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "Black Marble: Next Generation",
+          "common_name": "Black Marble",
+          "platform": "Suomi NPP",
+          "sensor": "VIIRS",
+          "type": "Other",
+          "organizations": [
+            "NASA/NOAA"
+          ],
+          "description": "Earth at night imagery",
+          "credit": "NASA Earth Observatory images by Joshua Stevens, using Suomi NPP VIIRS data from Miguel Román, NASA GSFC.",
+          "url": "https://visibleearth.nasa.gov/images/144898/earth-at-night-black-marble-2016-color-maps/144947l",
+          "date_range": null
+        }
+      ],
+      "main_image": {
+        "id": 1093572,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a005300/a005313/nightlights_flat_series_and_change_wZooms_13_EIC.02599_print.jpg",
+        "filename": "nightlights_flat_series_and_change_wZooms_13_EIC.02599_print.jpg",
+        "media_type": "Image",
+        "alt_text": "This global, flat map view of night lights data begins with a time series depicting annual averages from 2012 to 2023. The lights then fade away to reveal night lights change between 2012 and 2023, with regions of more light depicted in purple and regions with less light depicted in orange. The sequence then repeats with pop-out, zoomed-in views of India, Ukraine, Western Europe, and the Eastern Mediterranean region.",
+        "width": 1024,
+        "height": 288,
+        "pixels": 294912
+      }
+    },
+    "5425": {
+      "id": 5425,
+      "title": "Perpetual Ocean 2: Western Boundary Currents",
+      "description": "This is the 'beauty shot version' of Perpetual Ocean 2: Western Boundary Currents.  The visualization starts with a rotating globe showing ocean currents.  The camera then zooms into the Kuroshio current, moves over the Indian Ocean to the Agulhas Current, then over to the Gulf Stream. The flows from the surface down to 600 meters deep are all white.   Flows below 600 meters depth use the blue-cyan-white color table below.",
+      "url": "http://svs.gsfc.nasa.gov/5425/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2025-02-27T09:45:00-05:00",
+      "update_date": "2025-05-20T13:45:29.041835-04:00",
+      "keywords": [
+        "Earth Science",
+        "ocean circulation",
+        "ocean currents",
+        "Oceans",
+        "Physical oceanography"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "Greg Shirah",
+            "employer": "NASA/GSFC"
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "Blue Marble: Next Generation",
+          "common_name": "BMNG",
+          "platform": "Terra and Aqua",
+          "sensor": "MODIS",
+          "type": "Other",
+          "organizations": [],
+          "description": "",
+          "credit": "The Blue Marble data is courtesy of Reto Stockli (NASA/GSFC).",
+          "url": "http://earthobservatory.nasa.gov/Newsroom/BlueMarble/",
+          "date_range": null
+        },
+        {
+          "name": "ECCO2 High Resolution Ocean and Sea Ice Model",
+          "common_name": "ECCO2",
+          "platform": null,
+          "sensor": null,
+          "type": "Model",
+          "organizations": [
+            "NASA/JPL"
+          ],
+          "description": "",
+          "credit": "",
+          "url": "",
+          "date_range": null
+        },
+        {
+          "name": "ETOPO-30",
+          "common_name": "",
+          "platform": null,
+          "sensor": null,
+          "type": "Model",
+          "organizations": [],
+          "description": "NOAA Earth TOPOgraphy global relief model 30 arc-second resolution (ETOPO-30): The ETOPO Global Relief Model integrates topography, bathymetry, and shoreline data from regional and global datasets to enable comprehensive, high resolution renderings of geophysical characteristics of the earth’s surface. The model is designed to support tsunami forecasting, modeling, and warning, as well as ocean circulation modeling and Earth visualization.",
+          "credit": "",
+          "url": "https://www.ncei.noaa.gov/products/etopo-global-relief-model",
+          "date_range": null
+        }
+      ],
+      "main_image": {
+        "id": 1139048,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a005400/a005425/perpetual_ocean2_CLOSE_093_4k_clean_noDate.00000_print.jpg",
+        "filename": "perpetual_ocean2_CLOSE_093_4k_clean_noDate.00000_print.jpg",
+        "media_type": "Image",
+        "alt_text": "This is the 'beauty shot version' of Perpetual Ocean 2: Western Boundary Currents.  The visualization starts with a rotating globe showing ocean currents.  The camera then zooms into the Kuroshio current, moves over the Indian Ocean to the Agulhas Current, then over to the Gulf Stream.The colors used to color the flow in this version where chosen to provide a pleasing look.  The flows from the surface down to 600 meters deep are all white.   Flows below 600 meters depth use the blue-cyan-white color table below.",
+        "width": 1024,
+        "height": 576,
+        "pixels": 589824
+      }
+    },
+    "5533": {
+      "id": 5533,
+      "title": "Air Quality Model Runs",
+      "description": "NASA utilizes satellite instruments and models to monitor sources of air pollutants and their movement through the atmosphere. This visualization shows concentrations of air pollutants, such as Particulate Matter (PM2.5, fine particles smaller than 2.5 micrometers), Ozone (O~3~), Carbon Monoxide (CO), and Nitrogen Oxides (NO~x~) as they are tracked from NASA's Goddard Earth Observing System Composition Forecasting (GEOS-CF) system.",
+      "url": "http://svs.gsfc.nasa.gov/5533/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2025-05-05T12:30:00-04:00",
+      "update_date": "2026-01-28T17:21:23.820283-05:00",
+      "keywords": [
+        "air quality",
+        "Atmospheric Composition",
+        "Earth Information Center",
+        "GEOS",
+        "GMAO",
+        "Hyperwall"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "Helen-Nicole Kostis",
+            "employer": "USRA"
+          },
+          {
+            "name": "Joseph V. Ardizzone",
+            "employer": "NASA/GSFC"
+          }
+        ],
+        "Scientific consulting by": [
+          {
+            "name": "Lesley Ott",
+            "employer": "NASA/GSFC"
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "GEOS-CF",
+          "common_name": "",
+          "platform": null,
+          "sensor": null,
+          "type": "Other",
+          "organizations": [
+            "NASA GMAO"
+          ],
+          "description": "Knowland, K.E., C.A. Keller, and R. Lucchesi, 2022: File Specification for GEOS-CF Products. GMAO Office Note No. 17 (Version 1.3), 54 pp, available from [https://gmao.gsfc.nasa.gov/pubs/docs/Knowland1446.pdf](https://gmao.gsfc.nasa.gov/pubs/docs/Knowland1446.pdf)",
+          "credit": "",
+          "url": "https://portal.nccs.nasa.gov/datashare/gmao/geos-cf/v2/",
+          "date_range": "July 1-September 14, 2024"
+        }
+      ],
+      "main_image": {
+        "id": 1154743,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a005500/a005533/AirQuality_Sphere_1920x1080_0000.png",
+        "filename": "AirQuality_Sphere_1920x1080_0000.png",
+        "media_type": "Image",
+        "alt_text": "",
+        "width": 1920,
+        "height": 1080,
+        "pixels": 2073600
+      }
+    },
+    "5669": {
+      "id": 5669,
+      "title": "GEOS Aerosols (2025)",
+      "description": "Aerosols are tiny solid or liquid particles that float in the atmosphere and can travel long distances, affecting air quality and visibility far from their sources. This visualization still, captured for August 19, 2025 (20:00 UTC), is based on NASA's Goddard Earth Observing System (GEOS) model. The GEOS model delivers realistic, high-resolution weather and aerosol data that enable customized environmental prediction and advances in AI research.",
+      "url": "http://svs.gsfc.nasa.gov/5669/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2026-08-10T15:15:00-04:00",
+      "update_date": "2026-08-10T17:08:45.208253-04:00",
+      "keywords": [
+        "Aerosol Optical Depth/Thickness",
+        "GEOS",
+        "Models"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "Joseph V. Ardizzone",
+            "employer": "NASA/GSFC"
+          },
+          {
+            "name": "Helen-Nicole Kostis",
+            "employer": "Science and Technology Corporation"
+          }
+        ],
+        "Scientific consulting by": [
+          {
+            "name": "Lesley Ott",
+            "employer": "NASA/GSFC"
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "GEOS Forward Processing 2Km Replay",
+          "common_name": "GEOS-FP 2Km Replay",
+          "platform": null,
+          "sensor": null,
+          "type": "Model",
+          "organizations": [],
+          "description": "",
+          "credit": "",
+          "url": "",
+          "date_range": "August 19, 2025"
+        }
+      ],
+      "main_image": {
+        "id": 1205026,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a005600/a005669/Aerosols_2025-08-19T20_00_00_1920x1080.png",
+        "filename": "Aerosols_2025-08-19T20_00_00_1920x1080.png",
+        "media_type": "Image",
+        "alt_text": "",
+        "width": 1920,
+        "height": 1080,
+        "pixels": 2073600
+      }
+    }
+  }
+}

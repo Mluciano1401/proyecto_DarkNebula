@@ -28,6 +28,11 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      # GitHub Pages no tiene proxy hacia NASA SVS: refrescamos aquí las imágenes y la copia
+      # de la API. Si NASA no responde, se publica la copia que ya está en el repositorio.
+      - name: Actualizar imágenes y copia de la API de NASA SVS
+        run: node scripts/fetch-images.mjs
+        continue-on-error: true
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
