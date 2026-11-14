@@ -1,58 +1,45 @@
-:root {
-  --bg: #060a17;
-  --panel: #10182f;
-  --panel-2: #172242;
-  --border: #2c3d6e;
-  --control-border: #8494c4; /* ≥ 3:1 sobre los paneles (1.4.11) */
-  --text: #eef2ff;
-  --muted: #b8c3e0;
-  --accent: #7cc4ff;
-  --accent-strong: #3d9bf0;
-  --green: #5fd18c;
-  --warm: #ffa95e;
-  --focus: #ffd166;
-  --radius: 18px;
-  --t-clima: #8fd3ff;
-  --t-temperatura: #ff9b7a;
-  --t-océanos: #5fb8ff;
-  --t-hielo: #d9ecff;
-  --t-vegetación: #6fdc8c;
-  color-scheme: dark;
-}
+/* Estilos de la app sobre los tokens de tokens.css ("bóveda bajo luz ultravioleta").
+   Regla: ningún color, radio o sombra fijo aquí; todo sale de las variables. */
 
 * {
   box-sizing: border-box;
 }
 
 html {
-  background: var(--bg);
+  background: var(--surface-canvas);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  color: var(--text);
-  font: 16px/1.55 system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background:
-    radial-gradient(1px 1px at 12% 18%, #fff8 50%, transparent 51%),
-    radial-gradient(1px 1px at 72% 12%, #fff6 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 85% 62%, #fff7 50%, transparent 51%),
-    radial-gradient(1px 1px at 33% 78%, #fff5 50%, transparent 51%),
-    radial-gradient(1px 1px at 55% 40%, #fff4 50%, transparent 51%),
-    radial-gradient(1200px 600px at 80% -10%, #1b2b5c 0%, transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, #12305a 0%, transparent 60%),
-    var(--bg);
-  background-attachment: fixed;
+  color: var(--text-primary);
+  background: var(--surface-canvas);
+  font-family: var(--font-inter);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
-  color: var(--accent);
+  color: var(--text-link);
+  text-underline-offset: 3px;
+  transition: color var(--duration-fast) ease;
 }
 
+a:hover {
+  color: var(--text-link-hover);
+}
+
+/* Títulos: Inter Tight (sustituto de Roobert), nunca por debajo de 18 px. */
 h1,
-h2 {
-  line-height: 1.2;
-  margin: 0 0 0.5rem;
+h2,
+h3 {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-roobert);
+  font-weight: var(--weight-heading-strong);
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--color-frost);
 }
 
 button,
@@ -65,31 +52,53 @@ button {
   cursor: pointer;
 }
 
-/* --- Cabecera ------------------------------------------------------------ */
+/* Etiquetas "eyebrow" y datos técnicos: Roboto Mono en mayúsculas. */
+.eyebrow,
+.now-label,
+.topbar-tag,
+.album-track,
+.album-artist {
+  font-family: var(--font-mono);
+  font-size: var(--text-eyebrow);
+  font-weight: var(--weight-regular);
+  line-height: 1.6;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+/* --- Cabecera: barra flotante tipo píldora + hero ultravioleta ------------- */
 .site-header {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-4) var(--gutter) 0;
+}
+
+.topbar {
   display: flex;
   align-items: center;
-  gap: 18px;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 24px 24px 8px;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-5) var(--space-2) var(--space-3);
+  background: var(--surface-elevated);
+  border-radius: var(--radius-header);
+  box-shadow: var(--shadow-inset-top), var(--shadow-subtle);
 }
 
-.site-header h1 {
-  font-size: clamp(1.6rem, 3vw, 2.3rem);
-  letter-spacing: 0.01em;
-}
-
-.tagline {
-  margin: 0;
-  color: var(--muted);
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-roobert);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-heading-strong);
+  letter-spacing: var(--tracking-heading);
+  color: var(--color-frost);
 }
 
 .globe {
   flex: none;
-  width: 64px;
-  height: 64px;
-  filter: drop-shadow(0 0 14px #3d9bf088);
+  width: 36px;
+  height: 36px;
 }
 
 .globe-land {
@@ -105,57 +114,67 @@ button {
   }
 }
 
-/* --- Distribución --------------------------------------------------------- */
+.topbar-tag {
+  color: var(--text-secondary);
+}
+
+/* #6633ee solo vive dentro de este degradado, nunca como relleno plano. */
+.hero {
+  margin-top: var(--space-6);
+  padding: var(--space-20) var(--space-6) var(--space-16);
+  text-align: center;
+  background: var(--gradient-ultraviolet);
+  border-radius: var(--radius-elevated);
+}
+
+.hero .eyebrow {
+  margin: 0 calc(-1 * var(--tracking-eyebrow)) 0 0; /* compensa el espaciado final */
+  color: var(--color-frost);
+}
+
+.hero h1 {
+  margin: var(--space-4) 0;
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+}
+
+.tagline {
+  max-width: 36em;
+  margin: 0 auto;
+  font-size: var(--text-lg);
+  color: var(--color-lunar);
+}
+
+/* --- Distribución: secciones a 80 px dentro de un contenedor de 1200 px ---- */
 .layout {
   display: grid;
-  gap: 24px;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  grid-template-areas:
-    'player library'
-    'details library';
-  align-items: start;
-  max-width: 1280px;
+  gap: var(--space-20);
+  max-width: var(--container-max);
   margin: 0 auto;
-  padding: 16px 24px 32px;
+  padding: var(--space-12) var(--gutter) var(--space-20);
 }
 
-.player {
-  grid-area: player;
-}
-.library {
-  grid-area: library;
-}
-.details {
-  grid-area: details;
+/* --- Rocola: tarjeta elevada | avatar --------------------------------------- */
+.stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(200px, 30%, 360px);
+  gap: var(--space-8);
+  align-items: center;
 }
 
-@media (max-width: 960px) {
-  .layout {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'player' 'library' 'details';
-    padding: 12px 16px 32px;
-  }
-  .site-header {
-    padding: 16px 16px 4px;
-  }
-}
-
-/* --- Rocola ------------------------------------------------------------------ */
 .device {
-  background: linear-gradient(180deg, #1c2a52 0%, #111a35 100%);
-  border: 3px solid #3c5291;
-  border-radius: 36px;
-  padding: 20px;
-  box-shadow:
-    0 20px 60px #0008,
-    inset 0 1px 0 #ffffff1a;
+  background: var(--surface-elevated);
+  border-radius: var(--radius-elevated);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-subtle);
 }
 
 .screen {
-  background: #02050d;
-  border: 3px solid #2d3f73;
-  border-radius: 24px;
-  padding: 12px;
+  background: var(--surface-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: var(--space-3);
 }
 
 .screen-figure {
@@ -164,11 +183,12 @@ button {
 
 .image-wrap {
   position: relative;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  background: #000;
+  background: var(--surface-inset);
 }
 
+/* Las imágenes de NASA se muestran tal cual: son datos científicos. */
 .image-wrap img {
   display: block;
   width: 100%;
@@ -179,50 +199,38 @@ button {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 6px 12px;
-  padding: 12px 4px 2px;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-1) 0;
 }
 
 .now-label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--green);
+  color: var(--color-uv);
 }
 
 .now-title {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-family: var(--font-roobert);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-heading-strong);
+  letter-spacing: var(--tracking-heading);
+  color: var(--color-frost);
 }
 
 .theme-chip {
   display: inline-block;
-  padding: 1px 10px;
-  border: 1.5px solid var(--chip, var(--accent));
-  border-radius: 999px;
-  font-size: 0.82rem;
-  color: var(--text);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-ui-strong);
+  line-height: 1.9;
+  color: var(--text-secondary);
 }
+
 .theme-chip:empty {
   display: none;
 }
-[data-theme='clima'] {
-  --chip: var(--t-clima);
-}
-[data-theme='temperatura'] {
-  --chip: var(--t-temperatura);
-}
-[data-theme='océanos'] {
-  --chip: var(--t-océanos);
-}
-[data-theme='hielo'] {
-  --chip: var(--t-hielo);
-}
-[data-theme='vegetación'] {
-  --chip: var(--t-vegetación);
-}
 
-/* Cuadrícula superpuesta */
+/* Cuadrícula superpuesta (D3) */
 .grid-overlay {
   position: absolute;
   inset: 0;
@@ -238,18 +246,29 @@ button {
 .grid-cell {
   flex: 1;
   position: relative;
-  border: 1px solid #ffffff14;
+  border-right: 1px solid var(--color-grid-line);
+  border-bottom: 1px solid var(--color-grid-line);
   cursor: pointer;
   transition: background-color 0.12s ease;
 }
 
+.grid-cell:last-child {
+  border-right: 0;
+}
+
+.grid-row:last-child .grid-cell {
+  border-bottom: 0;
+}
+
 .grid-cell:hover {
-  background: #ffffff22;
+  background: var(--color-grid-line);
 }
 
 .grid-cell.is-playing {
-  background: #ffd16660;
-  box-shadow: inset 0 0 0 2px var(--focus);
+  z-index: 1;
+  background: var(--color-uv-wash);
+  box-shadow: inset 0 0 0 2px var(--color-uv);
+  filter: drop-shadow(var(--shadow-glow));
 }
 
 .grid-cell.is-unusual::after {
@@ -260,59 +279,64 @@ button {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--warm);
-  box-shadow: 0 0 0 1.5px #000;
+  background: var(--color-signal);
+  box-shadow: 0 0 0 1.5px var(--color-void-canvas);
 }
 
-/* Botones de transporte */
+/* Transporte: un único botón principal blanco; el resto, píldoras fantasma. */
 .transport {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: clamp(16px, 5vw, 40px);
-  margin: 20px 0 12px;
+  gap: var(--space-4);
+  margin: var(--space-6) 0 var(--space-5);
 }
 
 .btn-round {
   display: grid;
   place-items: center;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: 3px solid #e8eeff;
-  background: var(--panel-2);
-  transition: transform 0.1s ease, background-color 0.15s ease;
+  width: 64px;
+  height: 48px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  transition:
+    border-color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease,
+    transform 0.1s ease;
 }
 
 .btn-round:hover {
-  background: #22305a;
+  border-color: var(--color-uv-strong);
 }
 
 .btn-round:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
 }
 
 .btn-round svg {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   fill: currentColor;
 }
 
 .btn-play {
-  width: 84px;
-  height: 84px;
-  background: var(--accent-strong);
-  border-color: #fff;
-  color: #04122a;
+  width: 112px;
+  height: 60px;
+  border-color: var(--color-white);
+  background: var(--color-white);
+  color: var(--color-ink);
 }
 
 .btn-play:hover {
-  background: #5aaef5;
+  border-color: var(--color-frost);
+  background: var(--color-frost);
 }
 
 .btn-play svg {
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
 }
 
 .btn-play .icon-pause,
@@ -330,14 +354,16 @@ button {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 12px 24px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
+  gap: var(--space-3) var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-sm);
 }
 
 .mode {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   border: 0;
@@ -345,111 +371,207 @@ button {
 
 .mode legend {
   float: left;
-  margin-right: 8px;
-  color: var(--muted);
+  margin-right: var(--space-2);
   line-height: 36px;
+  color: var(--text-secondary);
 }
 
-.mode label {
+/* Píldoras fantasma: modo, narración, pausar animación, catálogo en vivo. */
+.mode label,
+.btn-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   min-height: 36px;
-  padding: 0 12px;
-  border: 1.5px solid var(--control-border);
-  border-radius: 999px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-ui-strong);
   cursor: pointer;
+  transition: border-color var(--duration-fast) ease;
 }
 
-.mode label:has(input:checked) {
-  border-color: var(--accent);
-  background: #7cc4ff22;
+.mode label:hover,
+.btn-toggle:hover {
+  border-color: var(--color-uv-strong);
+}
+
+.mode label:has(input:checked),
+.btn-toggle[aria-pressed='true'] {
+  border-color: var(--color-uv);
+  color: var(--color-uv);
+}
+
+/* Sin gap: el texto de estado (": activada") va pegado a "Narración". */
+.btn-toggle {
+  gap: 0;
+}
+
+/* Señal de estado que no depende solo del color: un punto delante (1.4.1). */
+.btn-toggle[aria-pressed='true']::before,
+.theme-btn[aria-pressed='true']::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-right: var(--space-2);
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.theme-btn[aria-pressed='true']::before {
+  margin-right: 0; /* .theme-btn ya separa con gap */
+}
+
+.btn-toggle:disabled {
+  color: var(--color-ash);
+  cursor: not-allowed;
 }
 
 .mode input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
   margin: 0;
+  accent-color: var(--color-uv);
 }
 
 .slider {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-3);
 }
 
 .slider label {
-  color: var(--muted);
-}
-
-.slider input[type='range'] {
-  width: 120px;
-  height: 24px;
-  accent-color: var(--accent);
+  color: var(--text-secondary);
 }
 
 .slider output {
   min-width: 4.5em;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
 }
 
-.btn-toggle {
-  min-height: 36px;
-  padding: 0 14px;
-  border-radius: 999px;
-  border: 1.5px solid var(--control-border);
+/* Deslizadores: pista Seam y relleno/pulgar ultravioleta (--fill lo pone jukebox.js). */
+.slider input[type='range'] {
+  --fill: 50%;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 128px;
+  height: 24px;
+  margin: 0;
   background: transparent;
+  cursor: pointer;
 }
 
-.btn-toggle[aria-pressed='true'] {
-  border-color: var(--green);
-  background: #5fd18c22;
+.slider input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(to right, var(--color-uv) var(--fill), var(--color-seam) var(--fill));
+}
+
+.slider input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-uv);
+}
+
+.slider input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-seam);
+}
+
+.slider input[type='range']::-moz-range-progress {
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-uv);
+}
+
+.slider input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-uv);
 }
 
 .status {
-  min-height: 1.6em;
-  margin: 12px 4px 0;
-  color: var(--muted);
+  min-height: 1.76em;
+  margin: var(--space-4) var(--space-1) 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
 
-/* --- Menú de álbumes --------------------------------------------------------- */
-.library {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
+/* --- Avatar ------------------------------------------------------------------ */
+.avatar {
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 1 / 1;
+  justify-self: center;
+}
+
+.avatar svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* "Pausar animación" (WCAG 2.2.2): congela todas las animaciones decorativas. */
+.motion-paused *,
+.motion-paused *::before,
+.motion-paused *::after {
+  animation-play-state: paused !important;
+}
+
+/* --- Galería de álbumes -------------------------------------------------------- */
+.library h2 {
+  font-size: var(--text-3xl);
 }
 
 .hint {
-  margin: 0 0 12px;
-  color: var(--muted);
+  margin: 0 0 var(--space-5);
+  color: var(--text-secondary);
 }
 
 .themes {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
 }
 
 .theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   min-height: 36px;
-  padding: 0 14px;
-  border-radius: 999px;
-  border: 1.5px solid var(--chip, var(--border));
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
   background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-ui-strong);
+  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.theme-btn:hover {
+  border-color: var(--color-uv-strong);
+  color: var(--text-primary);
 }
 
 .theme-btn[aria-pressed='true'] {
-  background: var(--chip, var(--accent));
-  border-color: var(--chip, var(--accent));
-  color: #04122a;
-  font-weight: 600;
-}
-
-.theme-btn[data-theme='todos'] {
-  --chip: var(--accent);
+  border-color: var(--color-uv);
+  color: var(--color-uv);
 }
 
 .albums {
@@ -457,35 +579,39 @@ button {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-5);
 }
 
 .album {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-4);
   width: 100%;
   height: 100%;
-  padding: 10px 10px 12px;
+  padding: var(--space-6);
   text-align: left;
-  border-radius: 14px;
-  border: 1.5px solid transparent;
-  background: var(--panel-2);
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  border: 1px solid transparent;
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-md-2);
+  color: var(--text-primary);
+  transition:
+    border-color var(--duration-fast) ease,
+    transform var(--duration-fast) ease;
 }
 
 .album:hover {
-  border-color: var(--control-border);
+  border-color: var(--color-uv-strong);
   transform: translateY(-3px);
 }
 
 .album[aria-current='true'] {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
+  border-color: var(--color-uv);
+  box-shadow: var(--shadow-md-2), var(--shadow-glow);
 }
 
-/* Carátula + vinilo: la funda ocupa el 80 % y el disco asoma por la derecha. */
+/* Carátula + vinilo: la funda ocupa la izquierda y el disco asoma por la derecha. */
 .album-art {
   position: relative;
   display: block;
@@ -500,12 +626,10 @@ button {
   left: 0;
   height: 100%;
   aspect-ratio: 1;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   overflow: hidden;
-  background: #000;
-  box-shadow:
-    4px 4px 12px #000a,
-    inset 0 0 0 1px #ffffff26;
+  background: var(--surface-inset);
+  box-shadow: var(--shadow-md-2);
 }
 
 .album-cover img {
@@ -515,12 +639,12 @@ button {
   object-fit: cover;
 }
 
-/* Brillo de funda de cartón */
+/* Brillo de funda (sobre la carátula, sin alterar el color de los datos debajo). */
 .album-cover::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #ffffff2e 0%, #fff0 38%, #0000 60%, #0006 100%);
+  background: linear-gradient(135deg, var(--overlay-sheen) 0%, transparent 40%);
   pointer-events: none;
 }
 
@@ -529,12 +653,10 @@ button {
   z-index: 1;
   top: 6px;
   left: 6px;
-  padding: 0 6px;
-  border-radius: 4px;
-  background: #000b;
-  color: #fff;
-  font: 600 0.75rem/1.5 ui-monospace, Consolas, monospace;
-  letter-spacing: 0.05em;
+  padding: 0 4px 0 6px;
+  border-radius: var(--radius-xs);
+  background: var(--overlay-scrim);
+  color: var(--color-frost);
 }
 
 .vinyl {
@@ -545,11 +667,11 @@ button {
   aspect-ratio: 1;
   border-radius: 50%;
   background:
-    radial-gradient(circle closest-side, #05070d 0 5%, var(--chip, var(--accent)) 6% 36%, #0000 37%),
-    conic-gradient(from 20deg, #fff0 0 8%, #ffffff30 13%, #fff0 20% 55%, #ffffff22 62%, #fff0 70%),
-    repeating-radial-gradient(circle, #1b1d24 0 1.5px, #0a0b10 1.5px 3px);
-  box-shadow: 0 3px 10px #000a;
-  transition: right 0.35s ease;
+    radial-gradient(circle closest-side, var(--color-void-canvas) 0 5%, var(--color-uv) 6% 36%, transparent 37%),
+    conic-gradient(from 20deg, transparent 0 8%, var(--overlay-shine) 13%, transparent 20% 55%, var(--overlay-shine) 62%, transparent 70%),
+    repeating-radial-gradient(circle, var(--color-vault) 0 1.5px, var(--color-void-canvas) 1.5px 3px);
+  box-shadow: var(--shadow-md-2);
+  transition: right 0.35s var(--ease-out);
 }
 
 .album:hover .vinyl,
@@ -569,127 +691,133 @@ button {
 
 .album-text {
   display: grid;
-  gap: 3px;
+  gap: var(--space-1);
   justify-items: start;
 }
 
 .album-title {
-  font-weight: 600;
-  line-height: 1.25;
+  font-weight: var(--weight-ui-strong);
+  line-height: 1.35;
+  color: var(--color-lunar);
 }
 
 .album-artist {
-  color: var(--muted);
-  font-size: 0.85rem;
-  margin-bottom: 3px;
+  margin-bottom: var(--space-1);
+  color: var(--text-secondary);
 }
 
-/* --- Información --------------------------------------------------------------- */
+.live {
+  margin-top: var(--space-8);
+}
+
+.live .btn-toggle {
+  min-height: 44px;
+  padding: 0 var(--space-6);
+}
+
+.live .hint {
+  margin: var(--space-2) 0 0;
+}
+
+.live .hint:empty {
+  display: none;
+}
+
+/* --- Información: tarjetas ------------------------------------------------------ */
+/* Dos columnas (Celda | Sobre la imagen); leyenda y teclado a lo ancho. Se mantiene
+   el orden del HTML para que el orden visual y el de lectura coincidan. */
 .details {
   display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
 }
 
 .card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px 20px;
+  padding: var(--space-6);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-md-2);
 }
 
 .card h2 {
-  font-size: 1.1rem;
+  font-size: var(--text-xl);
 }
 
 .card p {
-  margin: 0 0 0.75rem;
+  margin: 0 0 var(--space-3);
+}
+
+/* Datos técnicos de la celda: monoespaciada. Sin mayúsculas ni espaciado ancho porque
+   es una frase completa (legibilidad por encima de la estética). */
+.cell-data {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
 }
 
 .summary {
-  color: var(--muted);
+  color: var(--text-secondary);
 }
 
-.legend {
+.legend,
+.keys-card {
   grid-column: 1 / -1;
 }
 
 .legend dl {
   display: grid;
   grid-template-columns: max-content 1fr;
-  gap: 6px 16px;
-  margin: 0 0 12px;
+  gap: var(--space-2) var(--space-6);
+  margin: 0 0 var(--space-3);
 }
 
 .legend dt {
-  font-weight: 600;
-  color: var(--accent);
+  font-weight: var(--weight-ui-strong);
+  color: var(--color-uv);
 }
 
 .legend dd {
   margin: 0;
 }
 
-@media (max-width: 600px) {
-  .legend dl {
-    grid-template-columns: 1fr;
-  }
-  .legend dd {
-    margin-bottom: 8px;
-  }
-}
-
 .note {
-  color: var(--muted);
-  font-size: 0.92rem;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
 
 .keys {
   margin: 0;
-  padding-left: 1.1rem;
+  padding-left: var(--space-5);
 }
 
 kbd {
   display: inline-block;
   padding: 0 6px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   border-bottom-width: 2px;
-  border-radius: 6px;
-  background: var(--panel-2);
-  font: 0.9em ui-monospace, Consolas, monospace;
+  border-radius: var(--radius-xs);
+  background: var(--surface-elevated);
+  font: 0.85em var(--font-mono);
 }
 
 .site-footer {
-  max-width: 1280px;
+  max-width: var(--container-max);
   margin: 0 auto;
-  padding: 8px 24px 40px;
-  color: var(--muted);
-  font-size: 0.92rem;
+  padding: var(--space-8) var(--gutter) var(--space-12);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
 
-/* --- Escenario: rocola | avatar ------------------------------------------------ */
-.stage {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(200px, 30%, 360px);
-  gap: 20px;
-  align-items: center;
+.site-footer p {
+  margin: 0;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-subtle);
 }
 
-.avatar {
-  width: 100%;
-  max-width: 360px;
-  aspect-ratio: 1 / 1;
-  justify-self: center;
-}
-
-.avatar svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
+/* --- Responsive (al final para que tenga prioridad) ------------------------------ */
 @media (max-width: 767px) {
-  .stage {
+  .stage,
+  .details {
     grid-template-columns: minmax(0, 1fr);
   }
   .avatar {
@@ -697,25 +825,30 @@ kbd {
   }
 }
 
-/* "Pausar animación" (WCAG 2.2.2): congela todas las animaciones decorativas. */
-.motion-paused *,
-.motion-paused *::before,
-.motion-paused *::after {
-  animation-play-state: paused !important;
-}
-
-/* --- Pantallas pequeñas (al final para que tenga prioridad) ----------------- */
 @media (max-width: 600px) {
+  :root {
+    --gutter: 16px;
+  }
+  .topbar-tag {
+    display: none;
+  }
+  .hero {
+    padding: var(--space-14) var(--space-4) var(--space-12);
+  }
+  .layout {
+    gap: var(--space-14);
+    padding-top: var(--space-8);
+  }
   .device {
-    padding: 10px;
-    border-radius: 24px;
+    padding: var(--space-3);
+    border-radius: var(--radius-card);
   }
   .screen {
     padding: 6px;
-    border-radius: 16px;
+    border-radius: var(--radius-md);
   }
   .settings {
-    gap: 10px 16px;
+    gap: var(--space-3) var(--space-4);
   }
   .mode {
     flex-wrap: wrap;
@@ -727,25 +860,17 @@ kbd {
     width: 5px;
     height: 5px;
   }
-  .site-footer {
-    padding: 8px 16px 32px;
+  .albums {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-3);
   }
-}
-
-/* --- Catálogo en vivo --------------------------------------------------------- */
-.live {
-  margin-top: 16px;
-}
-
-.live .btn-toggle {
-  width: 100%;
-  min-height: 44px;
-}
-
-.live .hint {
-  margin: 8px 0 0;
-}
-
-.live .hint:empty {
-  display: none;
+  .album {
+    padding: var(--space-4);
+  }
+  .legend dl {
+    grid-template-columns: 1fr;
+  }
+  .legend dd {
+    margin-bottom: var(--space-2);
+  }
 }

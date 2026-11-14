@@ -5,9 +5,9 @@
   <defs>
     <!-- Fondo Espacial -->
     <radialGradient id="ea-space-bg" cx="50%" cy="50%" r="55%">
-      <stop offset="0%" stop-color="#0f2942" />
-      <stop offset="55%" stop-color="#061224" />
-      <stop offset="100%" stop-color="#02060d" />
+      <stop offset="0%" stop-color="#1f1d3a" />
+      <stop offset="55%" stop-color="#0d0d27" />
+      <stop offset="100%" stop-color="#010314" />
     </radialGradient>
 
     <!-- Brillo Atmosférico Exterior -->

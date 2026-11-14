@@ -1,0 +1,121 @@
+/* Sistema de diseño "bóveda bajo luz ultravioleta": fondo casi negro, superficies gris
+   violáceo y un solo acento violeta. Todas las demás hojas usan estas variables.
+   Las imágenes de NASA no se tiñen: son datos científicos. */
+
+:root {
+  /* --- Color: lienzo y superficies ------------------------------------------- */
+  --color-void-canvas: #010314; /* fondo de página (nunca claro) */
+  --color-vault: #171825; /* superficie elevada: cabecera, rocola */
+  --color-graphite: #2a2b3a; /* tarjetas, botones fantasma */
+  --color-seam: #343543; /* bordes y pistas */
+
+  /* --- Color: texto (de más tenue a más claro) -------------------------------- */
+  --color-ash: #5e6077; /* SOLO decorativo o deshabilitado: < 4.5:1 sobre el fondo */
+  --color-fog: #9fa2b9; /* texto secundario */
+  --color-lunar: #dfe1f4; /* texto principal */
+  --color-frost: #ececfb; /* enlaces en hover, texto sobre degradado */
+  --color-white: #ffffff; /* solo el botón principal */
+  --color-ink: #010314; /* texto sobre el botón blanco */
+
+  /* --- Color: acento ultravioleta --------------------------------------------- */
+  --color-uv: #b88cff; /* acento: enlaces, activo, foco, deslizadores */
+  --color-uv-strong: #8e64ff; /* bordes en hover */
+  --color-uv-deep: #6633ee; /* SOLO dentro de degradados */
+  --color-signal: #f92672; /* marcador de celda inusual */
+
+  --color-grid-line: rgba(223, 225, 244, 0.15);
+  --color-uv-wash: rgba(184, 140, 255, 0.16);
+  --color-uv-glow: rgba(184, 140, 255, 0.55);
+  --overlay-scrim: rgba(1, 3, 20, 0.75); /* fondo de etiquetas sobre imágenes, halo del foco */
+  --overlay-sheen: rgba(255, 255, 255, 0.16); /* brillo de funda */
+  --overlay-shine: rgba(236, 236, 251, 0.18); /* reflejo del vinilo */
+
+  /* --- Superficies (alias semánticos) ----------------------------------------- */
+  --surface-canvas: var(--color-void-canvas);
+  --surface-elevated: var(--color-vault);
+  --surface-card: var(--color-graphite);
+  --surface-inset: var(--color-void-canvas);
+  --border-subtle: var(--color-seam);
+  --text-primary: var(--color-lunar);
+  --text-secondary: var(--color-fog);
+  --text-link: var(--color-uv);
+  --text-link-hover: var(--color-frost);
+  --gradient-ultraviolet: radial-gradient(130% 120% at 50% 0, var(--color-uv-deep), transparent);
+
+  /* --- Tipografía --------------------------------------------------------------- */
+  /* Roobert es de pago: Inter Tight lo sustituye (autoalojada con Fontsource). */
+  --font-roobert: 'Inter Tight', 'Inter Variable', system-ui, sans-serif;
+  --font-inter: 'Inter Variable', Inter, system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-mono: 'Roboto Mono', ui-monospace, Consolas, monospace;
+
+  --text-eyebrow: 11px;
+  --text-xs: 12px; /* chips y valores de deslizadores */
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+  --text-display: clamp(40px, 6vw, 64px);
+
+  --leading-body: 1.76;
+  --leading-heading: 1.15;
+  --leading-display: 1.05;
+
+  --weight-regular: 400;
+  --weight-ui-strong: 580; /* énfasis en la UI (Inter variable) */
+  --weight-heading: 500;
+  --weight-heading-strong: 600;
+
+  --tracking-display: -0.025em; /* 48 px o más */
+  --tracking-heading: -0.015em;
+  --tracking-eyebrow: 0.4em;
+
+  /* --- Espaciado (base 4 px) ---------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px; /* separación entre secciones */
+  --container-max: 1200px;
+  --gutter: 24px;
+
+  /* --- Radios ------------------------------------------------------------------- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-card: 16px;
+  --radius-header: 19.2px;
+  --radius-elevated: 24px;
+  --radius-pill: 9999px;
+
+  /* --- Sombras (tintadas de azul noche, nunca grises genéricas) ----------------- */
+  --shadow-inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --shadow-subtle:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 1px 2px rgba(1, 3, 20, 0.6),
+    0 12px 32px -8px rgba(1, 3, 20, 0.8);
+  --shadow-md-2:
+    inset 0 0 0 1px rgba(184, 140, 255, 0.14),
+    0 4px 8px -2px rgba(1, 3, 20, 0.5),
+    0 16px 32px -12px rgba(1, 3, 20, 0.85);
+  --shadow-glow: 0 0 12px var(--color-uv-glow);
+
+  /* --- Foco ---------------------------------------------------------------------- */
+  --focus-ring: 3px solid var(--color-uv);
+  --focus-offset: 3px;
+
+  /* --- Movimiento ---------------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-fast: 0.15s;
+  --duration-base: 0.25s;
+
+  color-scheme: dark;
+}

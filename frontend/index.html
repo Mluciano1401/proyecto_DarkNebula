@@ -9,7 +9,7 @@
     <style>
       /* Pantalla de carga: en línea para que se vea antes de que cargue el JavaScript. */
       html {
-        background: #060a17;
+        background: var(--color-void-canvas, #010314);
       }
       .loader {
         position: fixed;
@@ -19,9 +19,9 @@
         place-content: center;
         justify-items: center;
         gap: 12px;
-        background: #060a17;
-        color: #b8c3e0;
-        font: 1.05rem/1.4 system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+        background: var(--color-void-canvas, #010314);
+        color: var(--color-fog, #9fa2b9);
+        font: 16px/1.76 var(--font-inter, system-ui, sans-serif);
         letter-spacing: 0.04em;
         transition: opacity 0.45s ease, visibility 0s linear 0.45s;
       }
@@ -136,9 +136,9 @@
       <svg class="loader-art" viewBox="0 0 500 500" focusable="false" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="ld-space-bg" cx="50%" cy="50%" r="55%">
-            <stop offset="0%" stop-color="#0f2942" />
-            <stop offset="55%" stop-color="#061224" />
-            <stop offset="100%" stop-color="#02060d" />
+            <stop offset="0%" stop-color="#1f1d3a" />
+            <stop offset="55%" stop-color="#0d0d27" />
+            <stop offset="100%" stop-color="#010314" />
           </radialGradient>
           <radialGradient id="ld-atmo-glow" cx="50%" cy="50%" r="50%">
             <stop offset="72%" stop-color="#00e5ff" stop-opacity="0.45" />
@@ -263,6 +263,8 @@
     <a class="skip-link" href="#reproductor">Saltar al contenido</a>
 
     <header class="site-header">
+      <div class="topbar">
+      <span class="brand">
       <svg class="globe" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
         <defs>
           <clipPath id="globe-clip"><circle cx="32" cy="32" r="28" /></clipPath>
@@ -282,9 +284,14 @@
             <path d="M112 20c4-1 9 1 10 5s-3 6-6 6-6-2-6-5 0-5 2-6z" />
           </g>
         </g>
-        <circle cx="32" cy="32" r="28" fill="none" stroke="#5fd18c" stroke-opacity=".5" stroke-width="2" />
+        <circle cx="32" cy="32" r="28" fill="none" stroke="#b88cff" stroke-opacity=".6" stroke-width="2" />
       </svg>
-      <div>
+      NASA Earth Sonification
+      </span>
+      <span class="topbar-tag">Space Apps · Earth Jukebox</span>
+      </div>
+      <div class="hero">
+        <p class="eyebrow">Ciencia · Arte · Accesibilidad</p>
         <h1>Jukebox Terrestre</h1>
         <p class="tagline">Escucha la Tierra: visualizaciones de NASA convertidas en sonido.</p>
       </div>
@@ -362,7 +369,7 @@
       <section class="details" aria-label="Información">
         <article class="card">
           <h2>Celda actual</h2>
-          <p id="cell-info">Elige una celda con el ratón o con las flechas del teclado.</p>
+          <p id="cell-info" class="cell-data">Elige una celda con el ratón o con las flechas del teclado.</p>
         </article>
         <article class="card">
           <h2>Sobre esta imagen</h2>
@@ -384,7 +391,7 @@
             <dt>Posición → paneo</dt>
             <dd>La izquierda de la imagen suena en el oído izquierdo y la derecha en el derecho.</dd>
             <dt>Zona inusual → campana</dt>
-            <dd>Una campana breve marca las celdas con variaciones visuales inusuales (punto naranja en la cuadrícula).</dd>
+            <dd>Una campana breve marca las celdas con variaciones visuales inusuales (punto rosa en la cuadrícula).</dd>
             <dt>Contraste → tempo</dt>
             <dd>Las imágenes con más contraste suenan algo más rápido.</dd>
             <dt>Bajo</dt>
@@ -394,7 +401,7 @@
           </dl>
           <p class="note">Detectamos variaciones visuales en la imagen, no fenómenos confirmados.</p>
         </article>
-        <article class="card">
+        <article class="card keys-card">
           <h2>Teclado</h2>
           <ul class="keys">
             <li><kbd>Tab</kbd> recorre los controles y entra en la cuadrícula.</li>

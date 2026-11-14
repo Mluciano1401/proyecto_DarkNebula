@@ -1,16 +1,16 @@
-/* Accesibilidad: WCAG 2.2 AA */
+/* Accesibilidad: WCAG 2.2 AA (manda sobre la estética). Colores desde tokens.css. */
 
 /* Enlace para saltar al contenido: visible al recibir foco. */
 .skip-link {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: var(--space-2);
+  left: var(--space-2);
   z-index: 100;
-  padding: 10px 16px;
-  border-radius: 8px;
-  background: var(--focus);
-  color: #1a1300;
-  font-weight: 700;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-uv);
+  color: var(--color-ink);
+  font-weight: var(--weight-ui-strong);
   text-decoration: none;
   transform: translateY(-200%);
 }
@@ -32,17 +32,19 @@
   border: 0;
 }
 
-/* Foco siempre visible y con buen contraste (2.4.7, 2.4.11). */
+/* Foco siempre visible: 3 px ultravioleta con 3 px de separación (2.4.7, 2.4.11). */
 :focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 3px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
 }
 
+/* En la cuadrícula el anillo va hacia dentro: hacia fuera lo taparían las celdas
+   vecinas y el borde redondeado de la imagen. El halo oscuro lo separa de los datos. */
 .grid-cell:focus-visible {
-  outline: 3px solid var(--focus);
+  z-index: 2;
+  outline: var(--focus-ring);
   outline-offset: -3px;
-  box-shadow: inset 0 0 0 6px #000a;
-  z-index: 1;
+  box-shadow: inset 0 0 0 6px var(--overlay-scrim);
 }
 
 .player:focus {
@@ -78,7 +80,14 @@ input[type='range'] {
     outline-offset: -3px;
   }
   .btn-round,
+  .btn-toggle,
+  .theme-btn,
   .album[aria-current='true'] {
     border-color: Highlight;
+  }
+  /* Deslizadores nativos: los personalizados perderían el pulgar en este modo. */
+  .slider input[type='range'] {
+    -webkit-appearance: auto;
+    appearance: auto;
   }
 }

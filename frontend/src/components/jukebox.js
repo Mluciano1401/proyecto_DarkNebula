@@ -295,14 +295,22 @@ export function createJukebox(initialPlaylist) {
   el.next.addEventListener('click', () => step(1));
   for (const input of el.modes) input.addEventListener('change', () => setMode(input.value));
 
+  // Solo estilo: la parte rellena del deslizador (variable --fill en main.css).
+  const paintRange = (input) =>
+    input.style.setProperty('--fill', `${((input.value - input.min) / (input.max - input.min)) * 100}%`);
+
   el.volume.addEventListener('input', () => {
     engine.setVolume(el.volume.value / 100);
     el.volumeOut.textContent = `${el.volume.value} %`;
+    paintRange(el.volume);
   });
   el.tempo.addEventListener('input', () => {
     engine.setTempo(+el.tempo.value);
     el.tempoOut.textContent = `${el.tempo.value} bpm`;
+    paintRange(el.tempo);
   });
+  paintRange(el.volume);
+  paintRange(el.tempo);
 
   // Nombre accesible fijo ("Narración") + aria-pressed; el estado visible va en un
   // span oculto al lector para que no se anuncie dos veces.
