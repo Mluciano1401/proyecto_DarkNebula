@@ -42,7 +42,7 @@ node scripts/fetch-images.mjs
 
 El script usa la [NASA SVS API](https://svs.gsfc.nasa.gov/help/) (`/api/<id>/`) y guarda las imágenes en `public/images/`. La experiencia también consulta las API en el navegador y precarga cada carátula mediante el proxy `/svs`, que permite que Canvas lea los píxeles sin problemas de CORS. GitHub Pages no admite ese proxy; para usar el catálogo con carga de imágenes desde API, desplieguen en Netlify o empaqueten antes las descargas locales.
 
-Las diez fuentes curadas son: [13786](https://svs.gsfc.nasa.gov/api/13786/), [5313](https://svs.gsfc.nasa.gov/api/5313/), [3912](https://svs.gsfc.nasa.gov/api/3912/), [5669](https://svs.gsfc.nasa.gov/api/5669/), [5533](https://svs.gsfc.nasa.gov/api/5533/), [5425](https://svs.gsfc.nasa.gov/api/5425/), [5196](https://svs.gsfc.nasa.gov/api/5196/), [5011](https://svs.gsfc.nasa.gov/api/5011/), [4960](https://svs.gsfc.nasa.gov/api/4960/) y [4950](https://svs.gsfc.nasa.gov/api/4950/). Para 13786, el enlace a la página informativa es [NASA SVS 13786](https://svs.gsfc.nasa.gov/13786/); esa pieza ya incluye una sonificación NASA y aquí se etiqueta como exploración visual de referencia.
+Las diez fuentes curadas son: [5313](https://svs.gsfc.nasa.gov/api/5313/), [3912](https://svs.gsfc.nasa.gov/api/3912/), [5669](https://svs.gsfc.nasa.gov/api/5669/), [5533](https://svs.gsfc.nasa.gov/api/5533/), [5425](https://svs.gsfc.nasa.gov/api/5425/), [5196](https://svs.gsfc.nasa.gov/api/5196/), [5011](https://svs.gsfc.nasa.gov/api/5011/), [4960](https://svs.gsfc.nasa.gov/api/4960/) y [4950](https://svs.gsfc.nasa.gov/api/4950/). Para 13786, el enlace a la página informativa es [NASA SVS 13786](https://svs.gsfc.nasa.gov/13786/); esa pieza ya incluye una sonificación NASA y aquí se etiqueta como exploración visual de referencia.
 
 ## Cómo se convierte la imagen en sonido
 
@@ -128,7 +128,6 @@ Imágenes y datos: **NASA Scientific Visualization Studio (SVS)**, de dominio p�
 
 | Pieza | Tema | Fuente |
 | --- | --- | --- |
-| Caldwell 73 (referencia ya sonificada) | Espacio | [SVS 13786](https://svs.gsfc.nasa.gov/13786/) |
 | Luces nocturnas | Clima | [SVS 5313](https://svs.gsfc.nasa.gov/5313/) |
 | Corrientes y temperatura superficial | Océanos | [SVS 3912](https://svs.gsfc.nasa.gov/3912/) |
 | Aerosoles GEOS | Clima | [SVS 5669](https://svs.gsfc.nasa.gov/5669/) |
