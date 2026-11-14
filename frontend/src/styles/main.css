@@ -457,25 +457,27 @@ button {
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 14px;
 }
 
 .album {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
-  padding: 8px;
+  height: 100%;
+  padding: 10px 10px 12px;
   text-align: left;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1.5px solid transparent;
   background: var(--panel-2);
   transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
 .album:hover {
-  border-color: var(--border);
-  transform: translateX(-2px);
+  border-color: var(--control-border);
+  transform: translateY(-3px);
 }
 
 .album[aria-current='true'] {
@@ -483,24 +485,103 @@ button {
   box-shadow: 0 0 0 1px var(--accent);
 }
 
-.album img {
-  flex: none;
-  width: 96px;
-  height: 54px;
-  object-fit: cover;
-  border-radius: 6px;
+/* Carátula + vinilo: la funda ocupa el 80 % y el disco asoma por la derecha. */
+.album-art {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+}
+
+.album-cover {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  height: 100%;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  overflow: hidden;
   background: #000;
+  box-shadow:
+    4px 4px 12px #000a,
+    inset 0 0 0 1px #ffffff26;
+}
+
+.album-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Brillo de funda de cartón */
+.album-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #ffffff2e 0%, #fff0 38%, #0000 60%, #0006 100%);
+  pointer-events: none;
+}
+
+.album-track {
+  position: absolute;
+  z-index: 1;
+  top: 6px;
+  left: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: #000b;
+  color: #fff;
+  font: 600 0.75rem/1.5 ui-monospace, Consolas, monospace;
+  letter-spacing: 0.05em;
+}
+
+.vinyl {
+  position: absolute;
+  top: 4%;
+  right: 14%;
+  height: 92%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle closest-side, #05070d 0 5%, var(--chip, var(--accent)) 6% 36%, #0000 37%),
+    conic-gradient(from 20deg, #fff0 0 8%, #ffffff30 13%, #fff0 20% 55%, #ffffff22 62%, #fff0 70%),
+    repeating-radial-gradient(circle, #1b1d24 0 1.5px, #0a0b10 1.5px 3px);
+  box-shadow: 0 3px 10px #000a;
+  transition: right 0.35s ease;
+}
+
+.album:hover .vinyl,
+.album[aria-current='true'] .vinyl {
+  right: 0;
+}
+
+.albums.is-playing .album[aria-current='true'] .vinyl {
+  animation: vinyl-spin 2.4s linear infinite;
+}
+
+@keyframes vinyl-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .album-text {
   display: grid;
-  gap: 4px;
+  gap: 3px;
   justify-items: start;
 }
 
 .album-title {
   font-weight: 600;
   line-height: 1.25;
+}
+
+.album-artist {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 3px;
 }
 
 /* --- Información --------------------------------------------------------------- */

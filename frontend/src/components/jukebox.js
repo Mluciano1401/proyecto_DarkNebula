@@ -103,6 +103,7 @@ export function createJukebox(initialPlaylist) {
   // --- Reproducción ----------------------------------------------------------
   function setPlayingUI(playing) {
     el.play.classList.toggle('is-playing', playing);
+    el.albums.classList.toggle('is-playing', playing); // el vinilo del álbum actual gira
     el.play.setAttribute('aria-label', playing ? 'Pausar' : 'Reproducir');
     el.label.textContent = playing ? 'Sonando' : 'Seleccionada';
   }
@@ -239,31 +240,44 @@ export function createJukebox(initialPlaylist) {
     announce(`${capitalize(theme)}: ${n} ${n === 1 ? 'imagen' : 'imágenes'}.`);
   }
 
+  const span = (className, text) => {
+    const s = document.createElement('span');
+    s.className = className;
+    if (text) s.textContent = text;
+    return s;
+  };
+
+  // Cada opción es un "álbum": carátula cuadrada con un vinilo que asoma detrás,
+  // número de pista, título, "artista" y tema.
   function renderAlbums() {
     el.albums.replaceChildren(
-      ...state.items.map((item) => {
+      ...state.items.map((item, i) => {
         const li = document.createElement('li');
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'album';
+        b.dataset.theme = item.theme;
         if (item === state.current) b.setAttribute('aria-current', 'true');
+
+        const art = span('album-art');
+        art.setAttribute('aria-hidden', 'true'); // decorativo: la info está en el texto
+        const cover = span('album-cover');
         const img = document.createElement('img');
         img.src = item.image;
         img.alt = '';
         img.loading = 'lazy';
-        img.width = 96;
-        img.height = 54;
-        const text = document.createElement('span');
-        text.className = 'album-text';
-        const title = document.createElement('span');
-        title.className = 'album-title';
-        title.textContent = item.title;
-        const theme = document.createElement('span');
-        theme.className = 'theme-chip';
-        theme.dataset.theme = item.theme;
-        theme.textContent = capitalize(item.theme) + (item.live ? ' · en vivo' : '');
-        text.append(title, theme);
-        b.append(img, text);
+        img.width = 160;
+        img.height = 160;
+        cover.append(img, span('album-track', String(i + 1).padStart(2, '0')));
+        art.append(span('vinyl'), cover);
+
+        const text = span('album-text');
+        text.append(
+          span('album-title', item.title),
+          span('album-artist', 'NASA SVS'),
+          span('theme-chip', capitalize(item.theme) + (item.live ? ' · en vivo' : '')),
+        );
+        b.append(art, text);
         b.addEventListener('click', () => selectItem(item));
         li.append(b);
         return li;
