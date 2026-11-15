@@ -33,6 +33,13 @@ jobs:
       - name: Actualizar imágenes y copia de la API de NASA SVS
         run: node scripts/fetch-images.mjs
         continue-on-error: true
+      # Las muestras locales permiten analizar fotogramas con Canvas sin depender de CORS.
+      - name: Preparar muestras de los videos 3D
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg tesseract-ocr
+          node scripts/prepare-3d-frames.mjs
+        continue-on-error: true
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

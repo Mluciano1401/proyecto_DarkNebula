@@ -141,9 +141,9 @@ Libraries: [Tone.js](https://tonejs.github.io/) and [D3.js](https://d3js.org/).
 
 **Escucha la Tierra.** Una rocola web que convierte visualizaciones científicas de la Tierra de NASA en música, para que personas ciegas o con baja visión puedan explorar los mismos datos que se ven en el Earth Information Center.
 
-Proyecto del equipo **DarkNebula** para NASA Space Apps · reto *The Earth Information Jukebox*.
+Proyecto del equipo **DarkNebula** para NASA Space Apps · reto _The Earth Information Jukebox_.
 
-> **Demo:** https://mluciano1401.github.io/proyecto_DarkNebula/ 
+> **Demo:** https://mluciano1401.github.io/proyecto_DarkNebula/
 
 ## El problema
 
@@ -158,7 +158,7 @@ Las visualizaciones de la Tierra de NASA (temperatura del mar, hielo ártico, ll
 - **Narración**: al cambiar de imagen, una voz en español lee el título y un resumen generado del análisis (se puede desactivar).
 - **Género musical**: ambiental añade notas sostenidas, clásica acordes y electrónica pulsos rítmicos. Son arreglos sintetizados inspirados en esos géneros; mantienen intactas las notas, alturas, posiciones y demás mapeos que comunican la imagen.
 - **Imágenes NASA**: al iniciar, la rocola consulta las API de las diez fuentes solicitadas y precarga las carátulas a través del proxy de mismo origen. Si la conexión o una imagen falla, anuncia el problema y conserva la colección local.
-- **Catálogo en vivo** (opcional): el botón "Añadir más del catálogo en vivo de NASA" busca en la SVS API más visualizaciones de la categoría *Earth* y las añade a la rocola (textos originales en inglés). Si la API no responde, la app sigue con la lista curada.
+- **Catálogo en vivo** (opcional): el botón "Añadir más del catálogo en vivo de NASA" busca en la SVS API más visualizaciones de la categoría _Earth_ y las añade a la rocola (textos originales en inglés). Si la API no responde, la app sigue con la lista curada.
 
 ## Cómo ejecutarlo
 
@@ -183,6 +183,8 @@ El script usa la [NASA SVS API](https://svs.gsfc.nasa.gov/help/) (`/api/<id>/`) 
 
 Las diez fuentes curadas son: [5313](https://svs.gsfc.nasa.gov/api/5313/), [3912](https://svs.gsfc.nasa.gov/api/3912/), [5669](https://svs.gsfc.nasa.gov/api/5669/), [5533](https://svs.gsfc.nasa.gov/api/5533/), [5425](https://svs.gsfc.nasa.gov/api/5425/), [5196](https://svs.gsfc.nasa.gov/api/5196/), [5011](https://svs.gsfc.nasa.gov/api/5011/), [4960](https://svs.gsfc.nasa.gov/api/4960/) y [4950](https://svs.gsfc.nasa.gov/api/4950/).
 
+La animación 3D SVS 4960 se analiza a partir de fotogramas de la versión no narrada. Para prepararlos localmente se necesitan `ffmpeg` y `tesseract-ocr`; luego ejecuten `npm run prepare:3d`. El proceso muestrea 24 instantes y excluye con OCR los cuadros donde detecta texto. La sonificación resultante representa características visuales del render, no mediciones numéricas de MERRA-2.
+
 ## Cómo se convierte la imagen en sonido
 
 ### Auditoría de fuentes y piloto
@@ -192,29 +194,29 @@ El inventario de las diez fuentes NASA compartidas está en [`src/data/source-ca
 Elegimos el **ID 5011, eventos de rayos del sensor LIS en la ISS**, como visualización piloto. Para la primera capa cuantitativa usaremos el producto NASA [ISS LIS Annual Thunder Hour](https://data.nasa.gov/dataset/international-space-station-iss-lightning-imaging-sensor-lis-annual-thunder-hour): un NetCDF-4 con una grilla de 0,05° y una medida definida en horas por año. Este producto cubre 2017-03-01 a 2023-11-16 y resume actividad de largo plazo; no es la misma ventana móvil de 10 días de la animación SVS. Está catalogado, pero todavía no está descargado ni integrado. Si después reproducimos las ventanas de 10 días, usaremos los eventos LIS originales y controlaremos la cobertura de observación antes de interpretar conteos. La especificación inicial de sonificación está en [`src/data/pilot-5011-sonification.md`](frontend/src/data/pilot-5011-sonification.md).
 
 1. **Canvas** (`processing/image-processor.js`): la imagen se reduce a 512 px y se divide en una cuadrícula de **16 columnas × 9 filas**. Por celda se calcula el color medio, el croma medio y la media y desviación de la luminancia.
-2. **Análisis** (`analysis/features.js`): por celda, brillo, tono, saturación y textura, normalizados de 0 a 1 respecto a la imagen. Una celda es *inusual* si su brillo o su textura se alejan más de 2 desviaciones típicas (|z| > 2). Se genera una descripción en español por celda y un resumen de la imagen.
+2. **Análisis** (`analysis/features.js`): por celda, brillo, tono, saturación y textura, normalizados de 0 a 1 respecto a la imagen. Una celda es _inusual_ si su brillo o su textura se alejan más de 2 desviaciones típicas (|z| > 2). Se genera una descripción en español por celda y un resumen de la imagen.
 3. **Sonido** (`audio/mapping.js` + `audio/audio-engine.js`, Tone.js): cada característica controla **un solo** parámetro y todas las notas caen en una escala pentatónica, así que suena musical y no caótico.
 
-| Característica visual | Parámetro de sonido | Regla |
-| --- | --- | --- |
-| Brillo | Altura | Pentatónica de Do en 2 octavas (C4–C6): más claro = más agudo |
-| Tono de color | Timbre | Fríos (azules) = onda suave (seno/triángulo); cálidos (rojos) = onda brillante (diente de sierra filtrada) |
-| Saturación (croma) | Volumen | Más color = más fuerte, con un mínimo audible |
-| Textura (variación interna) | Ritmo | Uniforme = 1 nota larga; mucha variación = 2–3 notas cortas repetidas |
-| Posición horizontal | Paneo estéreo | Izquierda de la imagen = oído izquierdo |
-| Celda inusual (\|z\| > 2) | Acento | Campana breve (FM) una octava arriba |
-| Contraste de la imagen | Tempo | Hasta un 25 % más rápido con más contraste |
-| Brillo medio de la columna | Bajo | Nota grave sostenida por columna |
-| Género musical | Arreglo de acompañamiento | Ambiental añade notas sostenidas, clásica acordes y electrónica pulsos; el motivo y el mapeo de las características visuales se conservan |
+| Característica visual       | Parámetro de sonido       | Regla                                                                                                                                     |
+| --------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Brillo                      | Altura                    | Pentatónica de Do en 2 octavas (C4–C6): más claro = más agudo                                                                             |
+| Tono de color               | Timbre                    | Fríos (azules) = onda suave (seno/triángulo); cálidos (rojos) = onda brillante (diente de sierra filtrada)                                |
+| Saturación (croma)          | Volumen                   | Más color = más fuerte, con un mínimo audible                                                                                             |
+| Textura (variación interna) | Ritmo                     | Uniforme = 1 nota larga; mucha variación = 2–3 notas cortas repetidas                                                                     |
+| Posición horizontal         | Paneo estéreo             | Izquierda de la imagen = oído izquierdo                                                                                                   |
+| Celda inusual (\|z\| > 2)   | Acento                    | Campana breve (FM) una octava arriba                                                                                                      |
+| Contraste de la imagen      | Tempo                     | Hasta un 25 % más rápido con más contraste                                                                                                |
+| Brillo medio de la columna  | Bajo                      | Nota grave sostenida por columna                                                                                                          |
+| Género musical              | Arreglo de acompañamiento | Ambiental añade notas sostenidas, clásica acordes y electrónica pulsos; el motivo y el mapeo de las características visuales se conservan |
 
 Usamos el croma (máx − mín de RGB) como "saturación" porque la S de HSL se dispara en píxeles casi negros y haría sonar fuerte el fondo del espacio.
 
-**Importante:** la app describe *variaciones visuales* de la imagen; no identifica fenómenos (huracanes, incendios…).
+**Importante:** la app describe _variaciones visuales_ de la imagen; no identifica fenómenos (huracanes, incendios…).
 
 ## Accesibilidad (objetivo WCAG 2.2 AA)
 
 - Enlace **Saltar al contenido**, foco siempre visible (amarillo, contraste 12:1) y orden de tabulación que sigue el orden visual.
-- **Cuadrícula** con `role="grid"` y *roving tabindex*: un solo Tab entra en la cuadrícula; **flechas** para moverse, **Inicio/Fin** para ir al borde de la fila, **Enter** para escuchar la celda, **Espacio** para reproducir o pausar. Cada celda tiene como `aria-label` su descripción (por ejemplo, "Fila 5, columna 8: zona oscura, tonos cálidos (rojo), algo de variación").
+- **Cuadrícula** con `role="grid"` y _roving tabindex_: un solo Tab entra en la cuadrícula; **flechas** para moverse, **Inicio/Fin** para ir al borde de la fila, **Enter** para escuchar la celda, **Espacio** para reproducir o pausar. Cada celda tiene como `aria-label` su descripción (por ejemplo, "Fila 5, columna 8: zona oscura, tonos cálidos (rojo), algo de variación").
 - Región `aria-live="polite"` que anuncia la imagen cargada, reproducción, pausa, fin, cambio de modo, filtros y la celda escuchada.
 - **Narración** con Web Speech API en español, con botón para activarla o desactivarla (`aria-pressed`); la música baja de volumen mientras habla.
 - Texto alternativo propio en español para cada imagen y resumen generado del análisis.
@@ -254,7 +256,7 @@ Stack: JavaScript con ES Modules, Vite, Canvas API, D3.js, Tone.js, Web Speech A
 
 ## Despliegue
 
-- **GitHub Pages**: el workflow `.github/workflows/deploy.yml` compila `frontend/` y publica `frontend/dist` en cada push a `main`. Hay que activarlo una vez en *Settings → Pages → Source: GitHub Actions*.
+- **GitHub Pages**: el workflow `.github/workflows/deploy.yml` compila `frontend/` y publica `frontend/dist` en cada push a `main`. Hay que activarlo una vez en _Settings → Pages → Source: GitHub Actions_.
 - **Netlify**: arrastra la carpeta `frontend/dist` a [app.netlify.com/drop](https://app.netlify.com/drop), o conecta el repositorio (el archivo `netlify.toml` ya indica la carpeta base, el comando y la de publicación).
 
 El build usa `base: './'`, así que funciona en la raíz de un dominio o dentro de una subcarpeta.
@@ -265,16 +267,16 @@ El build usa `base: './'`, así que funciona en la raíz de un dominio o dentro 
 
 Imágenes y datos: **NASA Scientific Visualization Studio (SVS)**, de dominio público.
 
-| Pieza | Tema | Fuente |
-| --- | --- | --- |
-| Luces nocturnas | Clima | [SVS 5313](https://svs.gsfc.nasa.gov/5313/) |
-| Corrientes y temperatura superficial | Océanos | [SVS 3912](https://svs.gsfc.nasa.gov/3912/) |
-| Aerosoles GEOS | Clima | [SVS 5669](https://svs.gsfc.nasa.gov/5669/) |
-| Modelo de calidad del aire | Clima | [SVS 5533](https://svs.gsfc.nasa.gov/5533/) |
-| Corrientes límite occidentales | Océanos | [SVS 5425](https://svs.gsfc.nasa.gov/5425/) |
-| Dióxido de carbono DYAMOND | Clima | [SVS 5196](https://svs.gsfc.nasa.gov/5196/) |
-| Rayos LIS desde la ISS | Clima | [SVS 5011](https://svs.gsfc.nasa.gov/5011/) |
-| Río atmosférico | Clima | [SVS 4960](https://svs.gsfc.nasa.gov/4960/) |
-| Altura forestal GEDI | Vegetación | [SVS 4950](https://svs.gsfc.nasa.gov/4950/) |
+| Pieza                                | Tema       | Fuente                                      |
+| ------------------------------------ | ---------- | ------------------------------------------- |
+| Luces nocturnas                      | Clima      | [SVS 5313](https://svs.gsfc.nasa.gov/5313/) |
+| Corrientes y temperatura superficial | Océanos    | [SVS 3912](https://svs.gsfc.nasa.gov/3912/) |
+| Aerosoles GEOS                       | Clima      | [SVS 5669](https://svs.gsfc.nasa.gov/5669/) |
+| Modelo de calidad del aire           | Clima      | [SVS 5533](https://svs.gsfc.nasa.gov/5533/) |
+| Corrientes límite occidentales       | Océanos    | [SVS 5425](https://svs.gsfc.nasa.gov/5425/) |
+| Dióxido de carbono DYAMOND           | Clima      | [SVS 5196](https://svs.gsfc.nasa.gov/5196/) |
+| Rayos LIS desde la ISS               | Clima      | [SVS 5011](https://svs.gsfc.nasa.gov/5011/) |
+| Río atmosférico                      | Clima      | [SVS 4960](https://svs.gsfc.nasa.gov/4960/) |
+| Altura forestal GEDI                 | Vegetación | [SVS 4950](https://svs.gsfc.nasa.gov/4950/) |
 
 Bibliotecas: [Tone.js](https://tonejs.github.io/) y [D3.js](https://d3js.org/).
