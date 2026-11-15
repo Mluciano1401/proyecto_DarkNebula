@@ -373,9 +373,22 @@
           </div>
         </div>
         <!-- Avatar decorativo que reacciona al audio (components/earth-avatar.js) -->
-        <div class="avatar" id="earth-avatar"></div>
+         <div>          
+          <div class="avatar" id="earth-avatar"></div>
+          <article class="card">
+            <h2 data-i18n="cell.title">Current cell</h2>
+            <p id="cell-info" class="cell-data" data-i18n="cell.prompt">Pick a cell with the mouse or the arrow keys.</p>
+          </article>
+         </div>
         </div>
         <p id="status" class="status" role="status" aria-live="polite"></p>
+        <article class="card legend">
+          <h2 data-i18n="about.title">About this image</h2>
+          <p id="image-desc"></p>
+          <p id="image-summary" class="summary"></p>
+          <p><a id="nasa-link" href="https://svs.gsfc.nasa.gov/" target="_blank" rel="noopener" data-i18n-html="about.nasaLink.html">View on NASA SVS<span class="visually-hidden"> (opens in a new tab)</span></a></p>
+          <p><a id="api-link" href="https://svs.gsfc.nasa.gov/api/" target="_blank" rel="noopener" data-i18n-html="about.apiLink.html">View the NASA SVS API response<span class="visually-hidden"> (opens in a new tab)</span></a></p>
+        </article>
       </section>
 
       <aside class="library" aria-labelledby="library-title">
@@ -390,17 +403,6 @@
       </aside>
 
       <section class="details" aria-label="Information" data-i18n-aria-label="details.label">
-        <article class="card">
-          <h2 data-i18n="cell.title">Current cell</h2>
-          <p id="cell-info" class="cell-data" data-i18n="cell.prompt">Pick a cell with the mouse or the arrow keys.</p>
-        </article>
-        <article class="card">
-          <h2 data-i18n="about.title">About this image</h2>
-          <p id="image-desc"></p>
-          <p id="image-summary" class="summary"></p>
-          <p><a id="nasa-link" href="https://svs.gsfc.nasa.gov/" target="_blank" rel="noopener" data-i18n-html="about.nasaLink.html">View on NASA SVS<span class="visually-hidden"> (opens in a new tab)</span></a></p>
-          <p><a id="api-link" href="https://svs.gsfc.nasa.gov/api/" target="_blank" rel="noopener" data-i18n-html="about.apiLink.html">View the NASA SVS API response<span class="visually-hidden"> (opens in a new tab)</span></a></p>
-        </article>
         <article class="card legend">
           <h2 data-i18n="legend.title">Legend: what each sound means</h2>
           <dl>
