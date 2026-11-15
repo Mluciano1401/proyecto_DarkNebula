@@ -101,7 +101,8 @@ export function speak(text, { onStart, onEnd } = {}) {
     if (voice) utterance.voice = voice;
     utterance.rate = 0.94;
     utterance.pitch = 1;
-    utterance.volume = 0.82;
+    // Deja margen frente al nivel de salida de las voces nativas del dispositivo.
+    utterance.volume = 0.7;
     utterance.onstart = () => {
       if (!started && id === requestId) {
         started = true;

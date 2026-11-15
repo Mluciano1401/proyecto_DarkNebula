@@ -44,7 +44,7 @@ export function mapCell(cell, cols) {
 // cambian. Solo varían el timbre y un acompañamiento opcional, de volumen bajo.
 // No son interpretaciones auténticas de instrumentos acústicos.
 export const SOUND_STYLES = {
-  ambiental: { soft: 'sine', bright: 'triangle', cutoff: 1400, release: 1.5, arrangement: 'pad' },
+  ambiental: { soft: 'sine', bright: 'triangle', cutoff: 1400, release: 0.7, arrangement: 'pad' },
   clasica: { soft: 'triangle', bright: 'sawtooth', cutoff: 2200, release: 0.85, arrangement: 'chords' },
   electronica: { soft: 'square', bright: 'sawtooth', cutoff: 3600, release: 0.18, arrangement: 'pulse' },
 };
