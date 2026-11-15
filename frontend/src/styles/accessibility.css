@@ -1,24 +1,5 @@
 /* Accesibilidad: WCAG 2.2 AA (manda sobre la estética). Colores desde tokens.css. */
 
-/* Enlace para saltar al contenido: visible al recibir foco. */
-.skip-link {
-  position: absolute;
-  top: var(--space-2);
-  left: var(--space-2);
-  z-index: 100;
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-pill);
-  background: var(--color-uv);
-  color: var(--color-ink);
-  font-weight: var(--weight-ui-strong);
-  text-decoration: none;
-  transform: translateY(-200%);
-}
-
-.skip-link:focus {
-  transform: none;
-}
-
 /* Texto solo para lectores de pantalla. */
 .visually-hidden {
   position: absolute !important;

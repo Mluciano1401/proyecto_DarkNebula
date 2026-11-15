@@ -73,7 +73,7 @@ We use chroma (max − min of RGB values) as a proxy for "saturation," because t
 
 ## Accessibility (targeting WCAG 2.2 AA compliance)
 
-- Includes a **Skip to content** link, a consistently visible violet focus indicator, and a tab order that follows the visual layout. The indicator's contrast depends on the adjacent surface; check it against every surface and state before claiming a ratio.
+- Includes a consistently visible violet focus indicator and a tab order that follows the visual layout. The indicator's contrast depends on the adjacent surface; check it against every surface and state before claiming a ratio.
 - A **grid** structure using `role="grid"` with a *roving tabindex*: a single Tab key press enters the grid; **arrow keys** are used for navigation, **Home/End** keys jump to the start or end of a row, **Enter** triggers the audio for a specific cell, and the **Spacebar** toggles play/pause. Each cell includes an `aria-label` containing its description (e.g., "Row 5, column 8: dark area, warm tones (red), some variation").
 - An `aria-live="polite"` region announces events such as image loading, playback status (play/pause/end), mode changes, filter adjustments, and the specific cell currently being played.
 - **Narration** provided via the Web Speech API (in Spanish), with a toggle button (`aria-pressed`) to enable or disable it; the music volume automatically lowers during speech.
@@ -218,7 +218,7 @@ Usamos el croma (máx − mín de RGB) como "saturación" porque la S de HSL se 
 
 ## Accesibilidad (objetivo WCAG 2.2 AA)
 
-- Enlace **Saltar al contenido**, foco violeta siempre visible y orden de tabulación que sigue el orden visual. El contraste del indicador depende de la superficie adyacente; compruébenlo en todas las superficies y estados antes de afirmar una proporción.
+- Foco violeta siempre visible y orden de tabulación que sigue el orden visual. El contraste del indicador depende de la superficie adyacente; compruébenlo en todas las superficies y estados antes de afirmar una proporción.
 - **Cuadrícula** con `role="grid"` y _roving tabindex_: un solo Tab entra en la cuadrícula; **flechas** para moverse, **Inicio/Fin** para ir al borde de la fila, **Enter** para escuchar la celda, **Espacio** para reproducir o pausar. Cada celda tiene como `aria-label` su descripción (por ejemplo, "Fila 5, columna 8: zona oscura, tonos cálidos (rojo), algo de variación").
 - Región `aria-live="polite"` que anuncia la imagen cargada, reproducción, pausa, fin, cambio de modo, filtros y la celda escuchada.
 - **Narración** con Web Speech API en español, con botón para activarla o desactivarla (`aria-pressed`); la música baja de volumen mientras habla.
