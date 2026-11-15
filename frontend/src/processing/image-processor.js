@@ -66,3 +66,31 @@ export function processImage(img, { width = 512, cols = COLS, rows = ROWS } = {}
   }
   return { cols, rows, width: w, height: h, cells };
 }
+
+// Resume una secuencia de fotogramas en la misma cuadrícula espacial. El brillo
+// representa el promedio temporal; la textura combina variación espacial y cambios
+// entre fotogramas, para que el sonido recoja movimiento sin reproducir texto.
+export function processVideoFrames(images, options = {}) {
+  if (!images.length) throw new Error('La secuencia de video no contiene fotogramas analizables');
+  const frames = images.map((image) => processImage(image, options));
+  const { cols, rows, width, height } = frames[0];
+  const cells = frames[0].cells.map((first, index) => {
+    const samples = frames.map((frame) => frame.cells[index]);
+    const average = (key) => samples.reduce((sum, cell) => sum + cell[key], 0) / samples.length;
+    const lumMean = average('lumMean');
+    const temporalStd = Math.sqrt(samples.reduce((sum, cell) => sum + (cell.lumMean - lumMean) ** 2, 0) / samples.length);
+    const spatialVariance = samples.reduce((sum, cell) => sum + cell.lumStd ** 2, 0) / samples.length;
+    return {
+      ...first,
+      r: average('r'),
+      g: average('g'),
+      b: average('b'),
+      hueRgb: [0, 1, 2].map((channel) => samples.reduce((sum, cell) => sum + cell.hueRgb[channel], 0) / samples.length),
+      chroma: average('chroma'),
+      lumMean,
+      lumStd: Math.sqrt(spatialVariance + temporalStd ** 2),
+      temporalStd,
+    };
+  });
+  return { cols, rows, width, height, cells, frameCount: frames.length };
+}

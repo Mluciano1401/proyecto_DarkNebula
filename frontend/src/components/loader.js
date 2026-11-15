@@ -8,6 +8,7 @@ const MAX_MS = 10000; // por si algo se queda colgado
 const FADE_MS = 500;
 
 function hideLoader() {
+  document.documentElement.classList.remove('is-loading');
   const loader = document.getElementById('loader');
   if (!loader || loader.classList.contains('is-done')) return;
   loader.classList.add('is-done');

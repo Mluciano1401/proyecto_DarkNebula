@@ -408,15 +408,14 @@ button {
   border: 0;
 }
 
-.mode legend {
-  float: left;
+.mode-label {
   margin-right: var(--space-2);
   line-height: 36px;
   color: var(--text-secondary);
 }
 
 /* Píldoras fantasma: modo, narración, pausar animación, catálogo en vivo. */
-.mode label,
+.mode-button,
 .btn-toggle {
   display: inline-flex;
   align-items: center;
@@ -433,15 +432,24 @@ button {
   transition: border-color var(--duration-fast) ease;
 }
 
-.mode label:hover,
+.mode-button:hover,
 .btn-toggle:hover {
   border-color: var(--color-uv-strong);
 }
 
-.mode label:has(input:checked),
+.mode-button[aria-pressed='true'],
 .btn-toggle[aria-pressed='true'] {
   border-color: var(--color-uv);
   color: var(--color-uv);
+}
+
+.mode-button[aria-pressed='true']::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 /* Sin gap: el texto de estado (": activada") va pegado a "Narración". */
@@ -470,13 +478,6 @@ button {
   cursor: not-allowed;
 }
 
-.mode input {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  accent-color: var(--color-uv);
-}
-
 .slider {
   display: flex;
   align-items: center;
@@ -500,6 +501,12 @@ button {
   border-radius: 999px;
   color: var(--text);
   background: var(--panel-2);
+  color-scheme: dark;
+}
+
+.sound-style option {
+  color: var(--text-primary);
+  background-color: var(--surface-elevated);
 }
 
 .slider label {

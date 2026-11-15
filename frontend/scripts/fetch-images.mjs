@@ -31,6 +31,7 @@ const FIELDS = [
   'id', 'title', 'description', 'url', 'page_type', 'nasa_science_categories', 'release_date',
   'update_date', 'variables', 'parameters', 'units', 'unit', 'date_range', 'time_range', 'keywords',
   'main_credits', 'datasets',
+  'media_groups',
 ];
 
 async function readSnapshot() {

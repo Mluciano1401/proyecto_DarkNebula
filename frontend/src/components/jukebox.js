@@ -1,7 +1,7 @@
 // Interfaz tipo rocola: pantalla con imagen + cuadrícula, anterior / reproducir / siguiente,
 // menú de temas que filtra la playlist, modo, volumen, tempo, narración e idioma.
 
-import { loadImage, processImage } from '../processing/image-processor.js';
+import { loadImage, processImage, processVideoFrames } from '../processing/image-processor.js';
 import { computeFeatures, describeCell, relabel } from '../analysis/features.js';
 import * as engine from '../audio/audio-engine.js';
 import { createGrid } from '../visualization/grid-renderer.js';
@@ -24,6 +24,7 @@ const nasaInfoText = (item) => [
   item.releaseDate && t('info.released', { v: item.releaseDate }),
   item.updateDate && t('info.updated', { v: item.updateDate }),
   item.datasets?.length && t('info.datasets', { v: item.datasets.map((dataset) => [dataset.name, dataset.common_name, dataset.platform, dataset.sensor, dataset.description, dataset.date_range].filter(Boolean).join(' — ')).join('; ') }),
+  item.video?.frameCount && t('info.videoVisual', { n: item.video.frameCount }),
   item.keywords?.length && t('info.keywords', { v: item.keywords.join(', ') }),
   item.credit && t('info.credits', { v: item.credit }),
 ].filter(Boolean).join('\n\n');
@@ -56,7 +57,7 @@ export function createJukebox(initialPlaylist = []) {
     live: $('btn-live'),
     liveStatus: $('live-status'),
     langButtons: document.querySelectorAll('#lang-switch [data-lang]'),
-    modes: document.querySelectorAll('input[name="mode"]'),
+    modes: document.querySelectorAll('.mode-button[data-mode]'),
   };
 
   const state = {
@@ -164,7 +165,7 @@ export function createJukebox(initialPlaylist = []) {
 
   function setMode(mode, { silent = false } = {}) {
     state.mode = mode;
-    for (const input of el.modes) input.checked = input.value === mode;
+    for (const button of el.modes) button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
     if (mode === 'explore' && engine.isPlaying()) {
       engine.pause();
       setPlayingUI(false);
@@ -176,10 +177,47 @@ export function createJukebox(initialPlaylist = []) {
 
   // --- Selección de imagen ---------------------------------------------------
   async function analyze(item) {
-    if (state.cache.has(item.id)) return relabel(state.cache.get(item.id));
-    const analysis = computeFeatures(processImage(await loadImage(item.image)));
-    state.cache.set(item.id, analysis);
-    return analysis;
+    if (state.cache.has(item.id)) {
+      const cached = state.cache.get(item.id);
+      cached.analysis = relabel(cached.analysis);
+      return cached;
+    }
+
+    if (item.video) {
+      const manifestUrl = new URL(`${import.meta.env.BASE_URL}data/video-frames/${item.id}.json`, window.location.href);
+      const response = await fetch(manifestUrl);
+      if (!response.ok) throw new Error(`No se encontraron los fotogramas sonificables del video NASA ${item.id}`);
+      const manifest = await response.json();
+      if (!Array.isArray(manifest.frames) || !manifest.frames.length) throw new Error('La secuencia no contiene fotogramas sin texto');
+      const frames = await Promise.all(manifest.frames.map(async (frame) => ({
+        image: await loadImage(new URL(`${import.meta.env.BASE_URL}video-frames/${item.id}/${frame.file}`, window.location.href).href),
+        time: frame.timeSeconds,
+      })));
+      const analysis = computeFeatures(processVideoFrames(frames.map(({ image }) => image)));
+      analysis.videoFrameCount = frames.length;
+      item.video.frameCount = frames.length;
+      const middle = frames[Math.floor(frames.length / 2)];
+      const result = {
+        analysis,
+        previewUrl: middle.image.src,
+        previewAlt: t('video.frameAlt', { title: item.title, time: formatVideoTime(middle.time) }),
+      };
+      state.cache.set(item.id, result);
+      return result;
+    }
+
+    const result = {
+      analysis: computeFeatures(processImage(await loadImage(item.image))),
+      previewUrl: item.image,
+      previewAlt: item.altText,
+    };
+    state.cache.set(item.id, result);
+    return result;
+  }
+
+  function formatVideoTime(seconds) {
+    const value = Math.round(seconds);
+    return `${Math.floor(value / 60)}:${String(value % 60).padStart(2, '0')}`;
   }
 
   async function selectItem(item, { speak = true } = {}) {
@@ -205,9 +243,13 @@ export function createJukebox(initialPlaylist = []) {
     renderAlbums();
 
     try {
-      const analysis = await analyze(item);
+      const result = await analyze(item);
       if (token !== state.loadToken) return; // el usuario ya eligió otra
+      const analysis = result.analysis;
       state.analysis = analysis;
+      el.art.src = result.previewUrl;
+      el.art.alt = result.previewAlt;
+      if (item.video) setText(el.desc, () => nasaInfoText(item));
       engine.setAnalysis(analysis);
       grid.render(analysis);
       setText(el.summary, () => relabel(analysis).summary);
@@ -224,8 +266,8 @@ export function createJukebox(initialPlaylist = []) {
       finishLoading();
       state.playWhenReady = false;
       setPlayingUI(false);
-      setText(el.summary, 'status.analyzeFailed');
-      announce(t('status.loadFailed', { title: item.title }));
+      setText(el.summary, item.video ? 'status.framesUnavailable' : 'status.analyzeFailed');
+      announce(item.video ? t('status.framesUnavailable') : t('status.loadFailed', { title: item.title }));
     }
   }
 
@@ -239,6 +281,10 @@ export function createJukebox(initialPlaylist = []) {
     if (!list.length) return;
     const i = list.indexOf(state.current);
     const next = i === -1 ? (delta > 0 ? 0 : list.length - 1) : (i + delta + list.length) % list.length;
+    // Siguiente/Anterior cambian de pieza; no reanudan la música anterior.
+    state.playWhenReady = false;
+    engine.stop();
+    setPlayingUI(false);
     selectItem(list[next]);
   }
 
@@ -280,6 +326,7 @@ export function createJukebox(initialPlaylist = []) {
   // Cada opción es un "álbum": carátula cuadrada con un vinilo que asoma detrás,
   // número de pista, título, "artista" y tema.
   function renderAlbums() {
+    const restoreAlbumFocus = el.albums.contains(document.activeElement);
     el.albums.replaceChildren(
       ...state.items.map((item, i) => {
         const li = document.createElement('li');
@@ -315,13 +362,16 @@ export function createJukebox(initialPlaylist = []) {
         return li;
       }),
     );
+    // selectItem vuelve a dibujar la lista. Si la acción partió de un álbum,
+    // conserva el foco en el álbum seleccionado en vez de devolverlo al documento.
+    if (restoreAlbumFocus) el.albums.querySelector('[aria-current="true"]')?.focus();
   }
 
   // --- Controles ---------------------------------------------------------------
   el.play.addEventListener('click', togglePlay);
   el.prev.addEventListener('click', () => step(-1));
   el.next.addEventListener('click', () => step(1));
-  for (const input of el.modes) input.addEventListener('change', () => setMode(input.value));
+  for (const button of el.modes) button.addEventListener('click', () => setMode(button.dataset.mode));
 
   // Solo estilo: la parte rellena del deslizador (variable --fill en main.css).
   const paintRange = (input) =>

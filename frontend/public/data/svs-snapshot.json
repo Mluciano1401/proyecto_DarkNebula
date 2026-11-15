@@ -220,7 +220,70 @@
         "width": 1024,
         "height": 576,
         "pixels": 589824
-      }
+      },
+      "media_groups": [
+        {
+          "widget": "Video player",
+          "description": "Narrated atmospheric rivers movie",
+          "items": [
+            {
+              "instance": {
+                "url": "http://svs.gsfc.nasa.gov/vis/a000000/a004900/a004960/atmos_rivers_narrated_HD.webm",
+                "filename": "atmos_rivers_narrated_HD.webm",
+                "media_type": "Movie",
+                "width": 1920,
+                "height": 1080
+              }
+            },
+            {
+              "instance": {
+                "url": "http://svs.gsfc.nasa.gov/vis/a000000/a004900/a004960/atmos_rivers_narrated_HD.mp4",
+                "filename": "atmos_rivers_narrated_HD.mp4",
+                "media_type": "Movie",
+                "width": 1920,
+                "height": 1080
+              }
+            },
+            {
+              "instance": {
+                "url": "http://svs.gsfc.nasa.gov/vis/a000000/a004900/a004960/atmos_river_narrated_4k.en_US.vtt",
+                "filename": "atmos_river_narrated_4k.en_US.vtt",
+                "media_type": "Captions",
+                "label": "English",
+                "language_code": "en-US"
+              }
+            }
+          ]
+        },
+        {
+          "widget": "Video player",
+          "description": "Non-narrated version of atmospheric rivers visualization",
+          "items": [
+            {
+              "instance": {
+                "url": "http://svs.gsfc.nasa.gov/vis/a000000/a004900/a004960/atmos_river_HD.webm",
+                "filename": "atmos_river_HD.webm",
+                "media_type": "Movie",
+                "width": 1920,
+                "height": 1080
+              }
+            },
+            {
+              "instance": {
+                "url": "http://svs.gsfc.nasa.gov/vis/a000000/a004900/a004960/atmos_river_HD.mp4",
+                "filename": "atmos_river_HD.mp4",
+                "media_type": "Movie",
+                "width": 1920,
+                "height": 1080
+              }
+            }
+          ]
+        },
+        {
+          "widget": "Basic text with HTML",
+          "description": "The blue shading shows a three-dimensional view of water vapor transport. Tropical moisture converges with other moisture sources to form an atmospheric river, which travels toward the west coast of the United States. The visualization uses NASA MERRA-2 reanalysis and model data."
+        }
+      ]
     },
     "5011": {
       "id": 5011,
