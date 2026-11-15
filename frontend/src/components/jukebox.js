@@ -171,6 +171,9 @@ export function createJukebox(initialPlaylist = []) {
       setPlayingUI(false);
     }
     grid.highlight(null);
+    // Entrar al modo exploración debe llevar directamente a la cuadrícula.
+    // Desde la celda activa, las flechas recorren la imagen y Tab sale de ella.
+    if (mode === 'explore') grid.focusActive();
     if (silent) return;
     announce(t(mode === 'explore' ? 'status.modeExplore' : 'status.modeAuto'));
   }

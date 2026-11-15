@@ -96,6 +96,7 @@ export function createGrid(container, { onActivate, onMove, onToggle }) {
     render,
     highlight,
     setActive,
+    focusActive: () => cellEl(active.row, active.col)?.focus(),
     getActive: () => (analysis ? cellData(active.row, active.col) : null),
   };
 }
