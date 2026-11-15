@@ -370,12 +370,14 @@
               <input id="tempo" type="range" min="60" max="200" step="10" value="120" />
               <output id="tempo-out" for="tempo">120 bpm</output>
             </div>
-            <button type="button" class="btn-toggle" id="btn-narration" aria-pressed="true">Narration<span aria-hidden="true">: on</span></button>
-            <button type="button" class="btn-toggle" id="btn-motion" aria-pressed="false" data-i18n="motion.pause">Pause animation</button>
+            <div>
+              <button type="button" class="btn-toggle" id="btn-narration" aria-pressed="true">Narration<span aria-hidden="true">: on</span></button>
+              <button type="button" class="btn-toggle" id="btn-motion" aria-pressed="false" data-i18n="motion.pause">Pause animation</button>
+            </div>
           </div>
         </div>
         <!-- Avatar decorativo que reacciona al audio (components/earth-avatar.js) -->
-         <div>          
+        <div>          
           <div class="avatar" id="earth-avatar"></div>
           <article class="card">
             <h2 data-i18n="cell.title">Current cell</h2>
