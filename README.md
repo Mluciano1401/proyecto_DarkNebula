@@ -1,3 +1,142 @@
+-*En*-
+# Earth Jukebox · NASA Earth Sonification
+
+**Listen to the Earth.** A web-based "jukebox" that converts NASA’s scientific visualizations of Earth into music, allowing blind or low-vision individuals to explore the same data featured in the Earth Information Center.
+
+A project by the **DarkNebula** team for the NASA Space Apps Challenge — *The Earth Information Jukebox* challenge.
+
+> **Demo:** https://mluciano1401.github.io/proyecto_DarkNebula/
+
+## The Problem
+
+NASA’s visualizations of Earth (sea temperature, Arctic ice, rainfall, vegetation, etc.) are almost exclusively visual. Sonification translates their colors and shapes into sound, while an interface—accessible via keyboard and screen reader—allows users to navigate and explore them without needing to see them.
+
+## Features
+
+- **Jukebox:** Select a NASA image as if choosing an album, with controls for Previous, Play/Pause, and Next, plus a menu to filter by topic.
+- **Automatic Mode:** The image plays like a musical score, column by column from left to right. Each column consists of a 9-cell arpeggio (from top to bottom), with the active cell highlighted as it plays.
+- **Exploration Mode:** Navigate the grid using arrow keys or a mouse; each cell produces a sound instantly, accompanied by a text description.
+- **Listening Avatar:** Beside the jukebox, an Earth figure wearing headphones reacts to the audio (displaying levels, bass, mid-range frequencies, and 5 spectral bands via `Tone.Meter` and `Tone.FFT`). The Earth’s rotation follows the tempo, while the aurora borealis shifts color based on the active cell and pulses gently when encountering "unusual" data points.
+- **Narration:** When switching images, a voice (in Spanish) reads the title and a summary generated from the data analysis (this feature can be disabled).
+- **Musical Genres:** The "Ambient" mode adds sustained notes, "Classical" introduces chords, and "Electronic" incorporates rhythmic pulses. These are synthesized arrangements inspired by those genres; they keep the notes, pitches, positions, and other mappings that convey the image intact.
+- **NASA Images**: Upon startup, the jukebox queries the APIs of the ten requested sources and preloads the cover images via a same-origin proxy. If the connection fails or an image cannot be retrieved, the system reports the issue while retaining the existing local collection.
+- **Live Catalog** (optional): The "Add more from the NASA live catalog" button searches the SVS API for additional visualizations in the *Earth* category and adds them to the jukebox (original text in English). If the API does not respond, the app continues using the curated list.
+
+## How to run it
+
+Requirements: Node.js 20.19+ (tested with Node 26).
+
+```bash
+cd frontend
+npm install
+npm run dev        # http://localhost:5173
+npm run build      # generates frontend/dist
+npm run preview    # serves the build
+```
+
+To download the ten NASA images locally and regenerate `src/data/playlist.json`:
+
+```bash
+cd frontend
+node scripts/fetch-images.mjs
+```
+
+The script uses the [NASA SVS API](https://svs.gsfc.nasa.gov/help/) (`/api/<id>/`) and saves the images to `public/images/`. The application also queries the APIs directly from the browser, preloading each cover image through the `/svs` proxy; this allows the Canvas API to read the image pixels without encountering CORS issues. Since GitHub Pages does not support this proxy, you should deploy to a platform like Netlify—or bundle the locally downloaded images—if you wish to use the catalog with dynamic API-based image loading. The ten curated sources are: [5313](https://svs.gsfc.nasa.gov/api/5313/), [3912](https://svs.gsfc.nasa.gov/api/3912/), [5669](https://svs.gsfc.nasa.gov/api/5669/), [5533](https://svs.gsfc.nasa.gov/api/5533/), [5425](https://svs.gsfc.nasa.gov/api/5425/), [5196](https://svs.gsfc.nasa.gov/api/5196/), [5011](https://svs.gsfc.nasa.gov/api/5011/), [4960](https://svs.gsfc.nasa.gov/api/4960/), and [4950](https://svs.gsfc.nasa.gov/api/4950/).
+
+## How images are converted into sound
+
+### Source audit and pilot project
+
+The inventory of the ten selected NASA sources can be found in [`src/data/source-catalog.json`](frontend/src/data/source-catalog.json). It distinguishes between videos that have already been sonified and visualizations of the Earth; it documents variables, dates, known units, files, and source sets; and it highlights instances where the NASA metadata is incomplete or contradictory.
+
+We selected **ID 5011—lightning events recorded by the LIS sensor on the ISS**—as our pilot visualization. For the initial quantitative layer, we will use the NASA product [ISS LIS Annual Thunder Hour](https://data.nasa.gov/dataset/international-space-station-iss-lightning-imaging-sensor-lis-annual-thunder-hour): a NetCDF-4 file with a 0.05° grid, where the measurement is defined in hours per year. This product covers the period from 2017-03-01 to 2023-11-16 and summarizes long-term activity; it does not correspond to the 10-day rolling window used in the SVS animation. It has been cataloged, but it has not yet been downloaded or integrated. If we later reproduce the 10-day windows, we will use the original LIS events and account for observational coverage before interpreting the counts. The initial sonification specification can be found in [`src/data/pilot-5011-sonification.md`](frontend/src/data/pilot-5011-sonification.md).
+
+1. **Canvas** (`processing/image-processor.js`): the image is resized to 512 px and divided into a grid of **16 columns × 9 rows**. For each cell, the average color, average chroma, and the mean and standard deviation of the luminance are calculated.
+2. **Analysis** (`analysis/features.js`): for each cell, brightness, hue, saturation, and texture are calculated and normalized from 0 to 1 relative to the entire image. A cell is considered *unusual* if its brightness or texture deviates by more than 2 standard deviations (|z| > 2). A description in Spanish is generated for each cell, along with a summary of the image as a whole.
+3. **Sound** (`audio/mapping.js` + `audio/audio-engine.js`, Tone.js): each feature controls **a single** parameter, and all notes are mapped to a pentatonic scale, ensuring the output is musical rather than chaotic.
+
+| Visual Feature | Sound Parameter | Rule |
+| --- | --- | --- |
+| Brightness | Pitch | C pentatonic scale across 2 octaves (C4–C6): brighter = higher pitch |
+| Hue (color tone) | Timbre | Cool colors (blues) = soft waveform (sine/triangle); warm colors (reds) = bright waveform (filtered sawtooth) |
+| Saturation (chroma) | Volume | More color = louder (with an audible minimum) |
+| Texture (internal variation) | Rhythm | Uniform = 1 long note; high variation = 2–3 repeated short notes |
+| Horizontal position | Stereo panning | Left side of the image = left ear |
+| Unusual cell (\|z\| > 2) | Accent | Short bell-like sound (FM synthesis) one octave higher |
+| Image contrast | Tempo | Up to 25% faster with higher contrast |
+| Average column brightness | Bass | Sustained low note per column |
+| Musical genre | Accompaniment arrangement | Ambient adds sustained notes, classical uses chords, and electronic features pulses; the motif and the mapping of visual characteristics are preserved |
+
+We use chroma (max − min of RGB values) as a proxy for "saturation," because the S (saturation) component in the HSL color model spikes in near-black pixels, which would cause the background of the space to sound too intense.
+
+**Important:** The app describes *visual variations* within the image; it does not identify specific phenomena (such as hurricanes or fires).
+
+## Accessibility (targeting WCAG 2.2 AA compliance)
+
+- Includes a **Skip to content** link, a consistently visible focus indicator (yellow, 12:1 contrast ratio), and a tab order that follows the visual layout.
+- A **grid** structure using `role="grid"` with a *roving tabindex*: a single Tab key press enters the grid; **arrow keys** are used for navigation, **Home/End** keys jump to the start or end of a row, **Enter** triggers the audio for a specific cell, and the **Spacebar** toggles play/pause. Each cell includes an `aria-label` containing its description (e.g., "Row 5, column 8: dark area, warm tones (red), some variation").
+- An `aria-live="polite"` region announces events such as image loading, playback status (play/pause/end), mode changes, filter adjustments, and the specific cell currently being played.
+- **Narration** provided via the Web Speech API (in Spanish), with a toggle button (`aria-pressed`) to enable or disable it; the music volume automatically lowers during speech.
+- Custom alternative text (in Spanish) for each image, along with a generated summary based on the analysis.
+- The avatar is purely decorative (`aria-hidden`). A **Pause animation** button freezes all animations without affecting the audio (WCAG 2.2.2). With `prefers-reduced-motion` enabled, the content remains static, and flashes are limited to one every 400 ms (2.3.1).
+- Audio **never** starts without a user action; pause and volume controls are always visible (1.4.2).
+- Text contrast is ≥ 7:1 in the worst-case scenario; control borders are ≥ 3:1; interactive targets are ≥ 24 × 24 px; the design respects `prefers-reduced-motion` and Windows high-contrast mode.
+
+**Tests performed:** axe-core 4.14 with no violations (WCAG 2.0/2.1/2.2 A and AA + best practices); full keyboard-only navigation walkthrough in Chrome.
+**Pending:** manual testing with NVDA and Lighthouse.
+**Known limitation:** on narrow mobile screens, grid cells measure less than 24 px. The position of each cell conveys the information itself (an "essential" exception under 2.5.8), and full navigation is provided via the keyboard. ## Structure
+
+```
+frontend/
+├── index.html
+├── scripts/fetch-images.mjs        downloads from NASA SVS API
+├── public/images/                  local copies of the visualizations
+└── src/
+├── main.js
+├── assets/earth-avatar.svg         animated avatar (Earth with headphones)
+├── data/playlist.json
+├── api/nasa-api.js                 live catalog (search + details, caching)
+├── processing/image-processor.js   Canvas → 16×9 grid
+├── analysis/features.js            brightness, hue, saturation, texture, descriptions
+├── audio/mapping.js                image-to-sound rules (pure functions)
+├── audio/audio-engine.js           Tone.js: synthesis, Transport, modes
+├── visualization/grid-renderer.js  accessible grid using D3
+├── accessibility/narrator.js       Web Speech API
+├── components/jukebox.js           jukebox interface
+├── components/earth-avatar.js      avatar that reacts to audio
+├── components/loader.js            loading screen
+└── styles/                         main.css, accessibility.css
+```
+
+Stack: JavaScript with ES Modules, Vite, Canvas API, D3.js, Tone.js, Web Speech API. No backend.
+
+## Deployment
+- **GitHub Pages**: The `.github/workflows/deploy.yml` workflow builds the `frontend/` directory and publishes `frontend/dist` upon every push to the `main` branch. It must be enabled once under *Settings → Pages → Source: GitHub Actions*.
+- **Netlify**: Drag and drop the `frontend/dist` folder onto [app.netlify.com/drop](https://app.netlify.com/drop), or connect your repository (the `netlify.toml` file already specifies the base directory, build command, and publish directory).
+
+The build uses `base: './'`, ensuring it works whether hosted at the root of a domain or within a subfolder.
+
+**Live Catalog and CORS:** The SVS API and its associated images only allow CORS requests from specific domains. Therefore, the live catalog is routed through a proxy at `/svs`—configured via Vite’s `server.proxy` for development and preview modes, and via a rule in `netlify.toml` for Netlify deployments. Since GitHub Pages does not support proxies, the interface will indicate that the live catalog is unavailable, and the application will default to the curated list instead. For a demonstration featuring the live catalog, please use Netlify.
+
+## Credits
+
+Images and data: **NASA Scientific Visualization Studio (SVS)**, in the public domain.
+
+| Item | Topic | Source |
+| --- | --- | --- |
+| Night Lights | Climate | [SVS 5313](https://svs.gsfc.nasa.gov/5313/) |
+| Surface Currents and Temperature | Oceans | [SVS 3912](https://svs.gsfc.nasa.gov/3912/) |
+| GEOS Aerosols | Climate | [SVS 5669](https://svs.gsfc.nasa.gov/5669/) |
+| Air Quality Model | Climate | [SVS 5533](https://svs.gsfc.nasa.gov/5533/) |
+| Western boundary currents | Oceans | [SVS 5425](https://svs.gsfc.nasa.gov/5425/) |
+| DYAMOND carbon dioxide | Climate | [SVS 5196](https://svs.gsfc.nasa.gov/5196/) |
+| LIS rays from the ISS | Climate | [SVS 5011](https://svs.gsfc.nasa.gov/5011/) |
+| Atmospheric river | Climate | [SVS 4960](https://svs.gsfc.nasa.gov/4960/) |
+| GEDI forest height | Vegetation | [SVS 4950](https://svs.gsfc.nasa.gov/4950/) |
+
+Libraries: [Tone.js](https://tonejs.github.io/) and [D3.js](https://d3js.org/).
+----------------------------------------------------------------------------------------------------------------------------------
+-*Es*-
 # Jukebox Terrestre · NASA Earth Sonification
 
 **Escucha la Tierra.** Una rocola web que convierte visualizaciones científicas de la Tierra de NASA en música, para que personas ciegas o con baja visión puedan explorar los mismos datos que se ven en el Earth Information Center.
