@@ -39,6 +39,35 @@ function datasetsFromApi(details) {
   }));
 }
 
+function videoFromApi(details) {
+  const groups = details.media_groups ?? [];
+  const context = stripHtml(`${details.title ?? ''} ${details.description ?? ''} ${groups.map((group) => group.description ?? '').join(' ')}`);
+  if (!/\b3d\b|three-dimensional|three dimensional/i.test(context)) return null;
+  const videoGroup = groups.find((group) => /non-narrated/i.test(stripHtml(group.description)) &&
+    (group.items ?? []).some(({ instance }) => instance?.media_type === 'Movie'));
+  if (!videoGroup) return null;
+
+  const media = (videoGroup.items ?? []).map(({ instance }) => instance).filter((instance) =>
+    instance?.media_type === 'Movie' && /\.(mp4|webm)$/i.test(instance.filename ?? ''),
+  );
+  media.sort((a, b) => {
+    const aHd = a.width === 1920 ? 0 : 1;
+    const bHd = b.width === 1920 ? 0 : 1;
+    const aWebm = /\.webm$/i.test(a.filename) ? 0 : 1;
+    const bWebm = /\.webm$/i.test(b.filename) ? 0 : 1;
+    return aHd - bHd || aWebm - bWebm;
+  });
+  if (!media.length) return null;
+
+  const descriptionGroup = groups.find((group) => group.widget === 'Basic text with HTML' &&
+    /three-dimensional|water vapor transport|MERRA-2/i.test(stripHtml(group.description)));
+  return {
+    source: secureUrl(media[0].url),
+    filename: media[0].filename,
+    description: descriptionGroup ? stripHtml(descriptionGroup.description) : stripHtml(videoGroup.description),
+  };
+}
+
 // Ficha de NASA → elemento de la playlist.
 function toItem(details, image, imageUrl, extra = {}) {
   const description = cleanDescription(details.description);
@@ -64,6 +93,7 @@ function toItem(details, image, imageUrl, extra = {}) {
     datasets: datasetsFromApi(details),
     sonificationType: details.page_type ?? 'visual-features',
     originalImage: { filename: image.filename, width: image.width, height: image.height },
+    video: videoFromApi(details),
     snapshotDate: null,
     ...extra,
   };

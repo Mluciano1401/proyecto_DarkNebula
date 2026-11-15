@@ -66,6 +66,8 @@ const en = {
   'about.title': 'About this image',
   'about.nasaLink.html': `View on NASA SVS${NEW_TAB.en}`,
   'about.apiLink.html': `View the NASA SVS API response${NEW_TAB.en}`,
+  'info.videoVisual': ({ n }) => `Sonification summarizes visual features from ${n} sampled frames of the non-narrated 3D video. It does not represent direct MERRA-2 measurements. Frames containing detected text are excluded.`,
+  'video.frameAlt': ({ title, time }) => `Representative frame from ${title}, at ${time}. The sonification summarizes multiple frames over time.`,
 
   'legend.title': 'Legend: what each sound means',
   'legend.style.dt': 'Sound style',
@@ -98,7 +100,7 @@ const en = {
   'keys.space.html': '<kbd>Space</kbd> in the grid plays or pauses the route.',
   'keys.note': 'If you use a screen reader, you can turn narration off so you don’t hear descriptions twice.',
 
-  'footer.html': `Images and data: <a href="https://svs.gsfc.nasa.gov/" target="_blank" rel="noopener">NASA Scientific Visualization Studio${NEW_TAB.en}</a>. A project for NASA Space Apps · Earth Jukebox challenge. · by Dark Nebula`,
+  'footer.html': `Images and data: <a href="https://svs.gsfc.nasa.gov/" target="_blank" rel="noopener">NASA Scientific Visualization Studio${NEW_TAB.en}</a>. A project for NASA Space Apps · The Earth Information Jukebox challenge. · by Dark Nebula`,
 
   'grid.label': ({ rows, cols }) =>
     `Image grid: ${rows} rows by ${cols} columns. Arrows to move, Enter to hear a cell, Space to play or pause.`,
@@ -125,6 +127,7 @@ const en = {
   'status.analyzing': 'Analyzing the image…',
   'status.loaded': ({ title }) => `Image loaded: ${title}.`,
   'status.analyzeFailed': 'This image could not be analyzed.',
+  'status.framesUnavailable': 'The 3D video frames are not prepared for analysis yet.',
   'status.loadFailed': ({ title }) => `Could not load the image ${title}.`,
   'status.filter': ({ theme, n }) => `${theme}: ${n} ${n === 1 ? 'image' : 'images'}.`,
   'status.style': ({ name, arrangement }) =>
@@ -244,6 +247,8 @@ const es = {
   'about.title': 'Sobre esta imagen',
   'about.nasaLink.html': `Ver en NASA SVS${NEW_TAB.es}`,
   'about.apiLink.html': `Ver respuesta de la API NASA SVS${NEW_TAB.es}`,
+  'info.videoVisual': ({ n }) => `La sonificación resume características visuales de ${n} fotogramas muestreados del video 3D sin narración. No representa mediciones directas de MERRA-2. Se excluyen los fotogramas donde se detecta texto.`,
+  'video.frameAlt': ({ title, time }) => `Fotograma representativo de ${title}, en el instante ${time}. La sonificación resume varios fotogramas a lo largo del video.`,
 
   'legend.title': 'Leyenda: qué significa cada sonido',
   'legend.style.dt': 'Estilo sonoro',
@@ -276,7 +281,7 @@ const es = {
   'keys.space.html': '<kbd>Espacio</kbd> en la cuadrícula reproduce o pausa el recorrido.',
   'keys.note': 'Si usas un lector de pantalla, puedes desactivar la narración para no oír las descripciones dos veces.',
 
-  'footer.html': `Imágenes y datos: <a href="https://svs.gsfc.nasa.gov/" target="_blank" rel="noopener">NASA Scientific Visualization Studio${NEW_TAB.es}</a>. Proyecto para NASA Space Apps · reto Earth Jukebox. · by Dark Nebula`,
+  'footer.html': `Imágenes y datos: <a href="https://svs.gsfc.nasa.gov/" target="_blank" rel="noopener">NASA Scientific Visualization Studio${NEW_TAB.es}</a>. Proyecto para NASA Space Apps · reto The Earth Information Jukebox. · by Dark Nebula`,
 
   'grid.label': ({ rows, cols }) =>
     `Cuadrícula de la imagen: ${rows} filas por ${cols} columnas. Flechas para moverte, Enter para escuchar una celda, Espacio para reproducir o pausar.`,
@@ -303,6 +308,7 @@ const es = {
   'status.analyzing': 'Analizando la imagen…',
   'status.loaded': ({ title }) => `Imagen cargada: ${title}.`,
   'status.analyzeFailed': 'No se pudo analizar esta imagen.',
+  'status.framesUnavailable': 'Los fotogramas del video 3D todavía no están preparados para el análisis.',
   'status.loadFailed': ({ title }) => `No se pudo cargar la imagen ${title}.`,
   'status.filter': ({ theme, n }) => `${theme}: ${n} ${n === 1 ? 'imagen' : 'imágenes'}.`,
   'status.style': ({ name, arrangement }) =>

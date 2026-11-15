@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="is-loading">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
@@ -16,6 +16,10 @@
       /* Pantalla de carga: en línea para que se vea antes de que cargue el JavaScript. */
       html {
         background: var(--color-void-canvas, #010314);
+      }
+      html.is-loading,
+      html.is-loading body {
+        overflow: hidden;
       }
       .loader {
         position: fixed;
@@ -332,23 +336,23 @@
 
           <div class="transport" role="group" aria-label="Playback controls" data-i18n-aria-label="transport.label">
             <button type="button" class="btn-round" id="btn-prev" aria-label="Previous image" data-i18n-aria-label="transport.prev">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M17 4 6 12l11 8z" /></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 5v14M18 5l-9 7 9 7z" /></svg>
             </button>
             <button type="button" class="btn-round btn-play" id="btn-play" aria-label="Play">
               <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4l12 8-12 8z" /></svg>
               <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 4h4v16H6zM14 4h4v16h-4z" /></svg>
             </button>
             <button type="button" class="btn-round" id="btn-next" aria-label="Next image" data-i18n-aria-label="transport.next">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 4l11 8-11 8z" /></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 5v14M6 5l9 7-9 7z" /></svg>
             </button>
           </div>
 
           <div class="settings">
-            <fieldset class="mode">
-              <legend data-i18n="mode.legend">Mode</legend>
-              <label><input type="radio" name="mode" value="auto" checked /> <span data-i18n="mode.auto">Automatic</span></label>
-              <label><input type="radio" name="mode" value="explore" /> <span data-i18n="mode.explore">Explore</span></label>
-            </fieldset>
+            <div class="mode" role="group" aria-labelledby="mode-label">
+              <span class="mode-label" id="mode-label" data-i18n="mode.legend">Mode</span>
+              <button class="mode-button" type="button" data-mode="auto" aria-pressed="true"><span data-i18n="mode.auto">Automatic</span></button>
+              <button class="mode-button" type="button" data-mode="explore" aria-pressed="false"><span data-i18n="mode.explore">Explore</span></button>
+            </div>
             <div class="sound-style">
               <label for="sound-style" data-i18n="style.label">Music genre</label>
               <select id="sound-style" aria-describedby="sound-style-help">
@@ -442,7 +446,7 @@
     </main>
 
     <footer class="site-footer">
-      <p data-i18n-html="footer.html">Images and data: <a href="https://svs.gsfc.nasa.gov/" target="_blank" rel="noopener">NASA Scientific Visualization Studio<span class="visually-hidden"> (opens in a new tab)</span></a>. A project for NASA Space Apps · Earth Jukebox challenge. · by Dark Nebula</p>
+      <p data-i18n-html="footer.html">Images and data: <a href="https://svs.gsfc.nasa.gov/" target="_blank" rel="noopener">NASA Scientific Visualization Studio<span class="visually-hidden"> (opens in a new tab)</span></a>. A project for NASA Space Apps · The Earth Information Jukebox challenge. · by Dark Nebula</p>
     </footer>
 
     <script type="module" src="/src/main.js"></script>

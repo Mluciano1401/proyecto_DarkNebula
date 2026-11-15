@@ -80,6 +80,7 @@ input[type='range'] {
     outline-offset: -3px;
   }
   .btn-round,
+  .mode-button,
   .btn-toggle,
   .theme-btn,
   .album[aria-current='true'] {
