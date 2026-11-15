@@ -19,7 +19,7 @@ NASA’s visualizations of Earth (sea temperature, Arctic ice, rainfall, vegetat
 - **Listening Avatar:** Beside the jukebox, an Earth figure wearing headphones reacts to the audio (displaying levels, bass, mid-range frequencies, and 5 spectral bands via `Tone.Meter` and `Tone.FFT`). The Earth’s rotation follows the tempo, while the aurora borealis shifts color based on the active cell and pulses gently when encountering "unusual" data points.
 - **Narration:** When switching images, a voice (in Spanish) reads the title and a summary generated from the data analysis (this feature can be disabled).
 - **Musical Genres:** The "Ambient" mode adds sustained notes, "Classical" introduces chords, and "Electronic" incorporates rhythmic pulses. These are synthesized arrangements inspired by those genres; they keep the notes, pitches, positions, and other mappings that convey the image intact.
-- **NASA Images**: Upon startup, the jukebox queries the APIs of the ten requested sources and preloads the cover images via a same-origin proxy. If the connection fails or an image cannot be retrieved, the system reports the issue while retaining the existing local collection.
+- **NASA Images**: Upon startup, the jukebox queries the APIs of the nine curated IDs in `source-catalog.json` and preloads their cover images. It uses locally bundled image/API snapshots as a fallback when available. ID 13786 is not currently in this curated list; it should be added explicitly if the project decides to include that already-sonified NASA piece.
 - **Live Catalog** (optional): The "Add more from the NASA live catalog" button searches the SVS API for additional visualizations in the *Earth* category and adds them to the jukebox (original text in English). If the API does not respond, the app continues using the curated list.
 
 ## How to run it
@@ -34,20 +34,20 @@ npm run build      # generates frontend/dist
 npm run preview    # serves the build
 ```
 
-To download the ten NASA images locally and regenerate `src/data/playlist.json`:
+To download the nine curated NASA images and refresh the local API snapshot used as a fallback:
 
 ```bash
 cd frontend
 node scripts/fetch-images.mjs
 ```
 
-The script uses the [NASA SVS API](https://svs.gsfc.nasa.gov/help/) (`/api/<id>/`) and saves the images to `public/images/`. The application also queries the APIs directly from the browser, preloading each cover image through the `/svs` proxy; this allows the Canvas API to read the image pixels without encountering CORS issues. Since GitHub Pages does not support this proxy, you should deploy to a platform like Netlify—or bundle the locally downloaded images—if you wish to use the catalog with dynamic API-based image loading. The ten curated sources are: [5313](https://svs.gsfc.nasa.gov/api/5313/), [3912](https://svs.gsfc.nasa.gov/api/3912/), [5669](https://svs.gsfc.nasa.gov/api/5669/), [5533](https://svs.gsfc.nasa.gov/api/5533/), [5425](https://svs.gsfc.nasa.gov/api/5425/), [5196](https://svs.gsfc.nasa.gov/api/5196/), [5011](https://svs.gsfc.nasa.gov/api/5011/), [4960](https://svs.gsfc.nasa.gov/api/4960/), and [4950](https://svs.gsfc.nasa.gov/api/4950/).
+The script uses the [NASA SVS API](https://svs.gsfc.nasa.gov/help/) (`/api/<id>/`), saves images to `public/images/`, and refreshes the API snapshot in `public/data/`. At runtime, the app tries the API through `/svs`, then its saved snapshot and local images. GitHub Pages cannot provide the proxy, so a fresh API response is unavailable there; the deployment workflow refreshes the snapshot and image files before building. The nine curated sources are: [5313](https://svs.gsfc.nasa.gov/api/5313/), [3912](https://svs.gsfc.nasa.gov/api/3912/), [5669](https://svs.gsfc.nasa.gov/api/5669/), [5533](https://svs.gsfc.nasa.gov/api/5533/), [5425](https://svs.gsfc.nasa.gov/api/5425/), [5196](https://svs.gsfc.nasa.gov/api/5196/), [5011](https://svs.gsfc.nasa.gov/api/5011/), [4960](https://svs.gsfc.nasa.gov/api/4960/), and [4950](https://svs.gsfc.nasa.gov/api/4950/).
 
 ## How images are converted into sound
 
 ### Source audit and pilot project
 
-The inventory of the ten selected NASA sources can be found in [`src/data/source-catalog.json`](frontend/src/data/source-catalog.json). It distinguishes between videos that have already been sonified and visualizations of the Earth; it documents variables, dates, known units, files, and source sets; and it highlights instances where the NASA metadata is incomplete or contradictory.
+The selection of nine curated NASA IDs can be found in [`src/data/source-catalog.json`](frontend/src/data/source-catalog.json). NASA metadata is fetched at runtime or read from a deployment snapshot. ID 13786 is not part of this collection. For IDs whose selected resource is a rendered image or video, the current sound describes visual features; it must not be interpreted as direct sonification of the underlying scientific measurements.
 
 We selected **ID 5011—lightning events recorded by the LIS sensor on the ISS**—as our pilot visualization. For the initial quantitative layer, we will use the NASA product [ISS LIS Annual Thunder Hour](https://data.nasa.gov/dataset/international-space-station-iss-lightning-imaging-sensor-lis-annual-thunder-hour): a NetCDF-4 file with a 0.05° grid, where the measurement is defined in hours per year. This product covers the period from 2017-03-01 to 2023-11-16 and summarizes long-term activity; it does not correspond to the 10-day rolling window used in the SVS animation. It has been cataloged, but it has not yet been downloaded or integrated. If we later reproduce the 10-day windows, we will use the original LIS events and account for observational coverage before interpreting the counts. The initial sonification specification can be found in [`src/data/pilot-5011-sonification.md`](frontend/src/data/pilot-5011-sonification.md).
 
@@ -73,28 +73,31 @@ We use chroma (max − min of RGB values) as a proxy for "saturation," because t
 
 ## Accessibility (targeting WCAG 2.2 AA compliance)
 
-- Includes a **Skip to content** link, a consistently visible focus indicator (yellow, 12:1 contrast ratio), and a tab order that follows the visual layout.
+- Includes a **Skip to content** link, a consistently visible violet focus indicator, and a tab order that follows the visual layout. The indicator's contrast depends on the adjacent surface; check it against every surface and state before claiming a ratio.
 - A **grid** structure using `role="grid"` with a *roving tabindex*: a single Tab key press enters the grid; **arrow keys** are used for navigation, **Home/End** keys jump to the start or end of a row, **Enter** triggers the audio for a specific cell, and the **Spacebar** toggles play/pause. Each cell includes an `aria-label` containing its description (e.g., "Row 5, column 8: dark area, warm tones (red), some variation").
 - An `aria-live="polite"` region announces events such as image loading, playback status (play/pause/end), mode changes, filter adjustments, and the specific cell currently being played.
 - **Narration** provided via the Web Speech API (in Spanish), with a toggle button (`aria-pressed`) to enable or disable it; the music volume automatically lowers during speech.
 - Custom alternative text (in Spanish) for each image, along with a generated summary based on the analysis.
 - The avatar is purely decorative (`aria-hidden`). A **Pause animation** button freezes all animations without affecting the audio (WCAG 2.2.2). With `prefers-reduced-motion` enabled, the content remains static, and flashes are limited to one every 400 ms (2.3.1).
 - Audio **never** starts without a user action; pause and volume controls are always visible (1.4.2).
-- Text contrast is ≥ 7:1 in the worst-case scenario; control borders are ≥ 3:1; interactive targets are ≥ 24 × 24 px; the design respects `prefers-reduced-motion` and Windows high-contrast mode.
+- The design uses high-contrast text tokens, visible focus styles, reduced-motion support, and Windows forced-colors support. Contrast and target-size conformance still require checking every component/state and viewport; these implementation notes alone are not proof of WCAG conformance.
 
-**Tests performed:** axe-core 4.14 with no violations (WCAG 2.0/2.1/2.2 A and AA + best practices); full keyboard-only navigation walkthrough in Chrome.
-**Pending:** manual testing with NVDA and Lighthouse.
-**Known limitation:** on narrow mobile screens, grid cells measure less than 24 px. The position of each cell conveys the information itself (an "essential" exception under 2.5.8), and full navigation is provided via the keyboard. ## Structure
+**Tests recorded by the project team:** axe-core 4.14 reported no violations, and a keyboard-only walkthrough was performed in Chrome. Automated scans and a single browser walkthrough do not establish WCAG conformance. **Still needed:** manual NVDA and VoiceOver testing, mobile screen-reader testing, user testing with blind/low-vision participants, and contrast/target checks for every state and viewport. The 16 × 9 touch grid is dense and its cells become smaller than 24 CSS px on narrow screens. Document the applicable WCAG 2.5.8 exception or provide larger/alternative touch controls; keyboard access by itself does not resolve target-size concerns.
+
+## Structure
 
 ```
 frontend/
 ├── index.html
-├── scripts/fetch-images.mjs        downloads from NASA SVS API
+├── scripts/fetch-images.mjs        downloads images and refreshes the NASA API snapshot
+├── scripts/prepare-3d-frames.mjs   samples the 3D video and filters frames with OCR
 ├── public/images/                  local copies of the visualizations
 └── src/
 ├── main.js
 ├── assets/earth-avatar.svg         animated avatar (Earth with headphones)
-├── data/playlist.json
+├── data/source-catalog.json        curated NASA IDs and live search rules
+├── data/pilot-5011-sonification.md quantitative pilot specification
+├── data/video-4960-sonification.md 3D video sampling specification
 ├── api/nasa-api.js                 live catalog (search + details, caching)
 ├── processing/image-processor.js   Canvas → 16×9 grid
 ├── analysis/features.js            brightness, hue, saturation, texture, descriptions
@@ -157,7 +160,7 @@ Las visualizaciones de la Tierra de NASA (temperatura del mar, hielo ártico, ll
 - **Avatar que escucha**: junto a la rocola, una Tierra con auriculares reacciona al audio (nivel, graves, medios y 5 bandas del espectro con `Tone.Meter` y `Tone.FFT`); el giro sigue el tempo, la aurora toma el color de la celda que suena y destella suavemente en las celdas inusuales.
 - **Narración**: al cambiar de imagen, una voz en español lee el título y un resumen generado del análisis (se puede desactivar).
 - **Género musical**: ambiental añade notas sostenidas, clásica acordes y electrónica pulsos rítmicos. Son arreglos sintetizados inspirados en esos géneros; mantienen intactas las notas, alturas, posiciones y demás mapeos que comunican la imagen.
-- **Imágenes NASA**: al iniciar, la rocola consulta las API de las diez fuentes solicitadas y precarga las carátulas a través del proxy de mismo origen. Si la conexión o una imagen falla, anuncia el problema y conserva la colección local.
+- **Imágenes NASA**: al iniciar, la rocola consulta las API de los nueve ID curados de `source-catalog.json` y precarga sus carátulas. Si falla la API, usa las copias locales de metadatos e imágenes cuando están disponibles. El ID 13786 no forma parte actualmente de esa colección; agréguenlo explícitamente si deciden incluir esa pieza NASA ya sonificada.
 - **Catálogo en vivo** (opcional): el botón "Añadir más del catálogo en vivo de NASA" busca en la SVS API más visualizaciones de la categoría _Earth_ y las añade a la rocola (textos originales en inglés). Si la API no responde, la app sigue con la lista curada.
 
 ## Cómo ejecutarlo
@@ -172,16 +175,16 @@ npm run build      # genera frontend/dist
 npm run preview    # sirve el build
 ```
 
-Para descargar localmente las diez imágenes de NASA y regenerar `src/data/playlist.json`:
+Para descargar las nueve imágenes curadas de NASA y actualizar la copia local de las respuestas de API:
 
 ```bash
 cd frontend
 node scripts/fetch-images.mjs
 ```
 
-El script usa la [NASA SVS API](https://svs.gsfc.nasa.gov/help/) (`/api/<id>/`) y guarda las imágenes en `public/images/`. La experiencia también consulta las API en el navegador y precarga cada carátula mediante el proxy `/svs`, que permite que Canvas lea los píxeles sin problemas de CORS. GitHub Pages no admite ese proxy; para usar el catálogo con carga de imágenes desde API, desplieguen en Netlify o empaqueten antes las descargas locales.
+El script usa la [NASA SVS API](https://svs.gsfc.nasa.gov/help/) (`/api/<id>/`), guarda imágenes en `public/images/` y actualiza la copia de las respuestas en `public/data/`. Al ejecutarse, la app intenta consultar la API por `/svs` y luego usa la copia guardada y las imágenes locales. GitHub Pages no permite el proxy; el workflow actualiza las copias antes de compilar, por lo que allí los datos no son una consulta en vivo.
 
-Las diez fuentes curadas son: [5313](https://svs.gsfc.nasa.gov/api/5313/), [3912](https://svs.gsfc.nasa.gov/api/3912/), [5669](https://svs.gsfc.nasa.gov/api/5669/), [5533](https://svs.gsfc.nasa.gov/api/5533/), [5425](https://svs.gsfc.nasa.gov/api/5425/), [5196](https://svs.gsfc.nasa.gov/api/5196/), [5011](https://svs.gsfc.nasa.gov/api/5011/), [4960](https://svs.gsfc.nasa.gov/api/4960/) y [4950](https://svs.gsfc.nasa.gov/api/4950/).
+Las nueve fuentes curadas son: [5313](https://svs.gsfc.nasa.gov/api/5313/), [3912](https://svs.gsfc.nasa.gov/api/3912/), [5669](https://svs.gsfc.nasa.gov/api/5669/), [5533](https://svs.gsfc.nasa.gov/api/5533/), [5425](https://svs.gsfc.nasa.gov/api/5425/), [5196](https://svs.gsfc.nasa.gov/api/5196/), [5011](https://svs.gsfc.nasa.gov/api/5011/), [4960](https://svs.gsfc.nasa.gov/api/4960/) y [4950](https://svs.gsfc.nasa.gov/api/4950/). El ID 13786 no está en esta lista curada.
 
 La animación 3D SVS 4960 se analiza a partir de fotogramas de la versión no narrada. Para prepararlos localmente se necesitan `ffmpeg` y `tesseract-ocr`; luego ejecuten `npm run prepare:3d`. El proceso muestrea 24 instantes y excluye con OCR los cuadros donde detecta texto. La sonificación resultante representa características visuales del render, no mediciones numéricas de MERRA-2.
 
@@ -189,7 +192,7 @@ La animación 3D SVS 4960 se analiza a partir de fotogramas de la versión no na
 
 ### Auditoría de fuentes y piloto
 
-El inventario de las diez fuentes NASA compartidas está en [`src/data/source-catalog.json`](frontend/src/data/source-catalog.json). Separa los videos ya sonificados de las visualizaciones de la Tierra, documenta variables, fechas, unidades conocidas, archivos y conjuntos fuente, y señala los casos donde el metadato de NASA es incompleto o contradictorio.
+La selección de nueve ID curados está en [`src/data/source-catalog.json`](frontend/src/data/source-catalog.json). Los metadatos NASA se consultan al ejecutar la app o se leen de la copia guardada para el despliegue. El ID 13786 no está incluido. Cuando el recurso elegido es una imagen o un video renderizado, el sonido actual describe características visuales; no es sonificación directa de las mediciones científicas subyacentes.
 
 Elegimos el **ID 5011, eventos de rayos del sensor LIS en la ISS**, como visualización piloto. Para la primera capa cuantitativa usaremos el producto NASA [ISS LIS Annual Thunder Hour](https://data.nasa.gov/dataset/international-space-station-iss-lightning-imaging-sensor-lis-annual-thunder-hour): un NetCDF-4 con una grilla de 0,05° y una medida definida en horas por año. Este producto cubre 2017-03-01 a 2023-11-16 y resume actividad de largo plazo; no es la misma ventana móvil de 10 días de la animación SVS. Está catalogado, pero todavía no está descargado ni integrado. Si después reproducimos las ventanas de 10 días, usaremos los eventos LIS originales y controlaremos la cobertura de observación antes de interpretar conteos. La especificación inicial de sonificación está en [`src/data/pilot-5011-sonification.md`](frontend/src/data/pilot-5011-sonification.md).
 
@@ -215,30 +218,31 @@ Usamos el croma (máx − mín de RGB) como "saturación" porque la S de HSL se 
 
 ## Accesibilidad (objetivo WCAG 2.2 AA)
 
-- Enlace **Saltar al contenido**, foco siempre visible (amarillo, contraste 12:1) y orden de tabulación que sigue el orden visual.
+- Enlace **Saltar al contenido**, foco violeta siempre visible y orden de tabulación que sigue el orden visual. El contraste del indicador depende de la superficie adyacente; compruébenlo en todas las superficies y estados antes de afirmar una proporción.
 - **Cuadrícula** con `role="grid"` y _roving tabindex_: un solo Tab entra en la cuadrícula; **flechas** para moverse, **Inicio/Fin** para ir al borde de la fila, **Enter** para escuchar la celda, **Espacio** para reproducir o pausar. Cada celda tiene como `aria-label` su descripción (por ejemplo, "Fila 5, columna 8: zona oscura, tonos cálidos (rojo), algo de variación").
 - Región `aria-live="polite"` que anuncia la imagen cargada, reproducción, pausa, fin, cambio de modo, filtros y la celda escuchada.
 - **Narración** con Web Speech API en español, con botón para activarla o desactivarla (`aria-pressed`); la música baja de volumen mientras habla.
 - Texto alternativo propio en español para cada imagen y resumen generado del análisis.
 - El avatar es decorativo (`aria-hidden`). El botón **Pausar animación** congela todas las animaciones sin tocar el audio (2.2.2); con `prefers-reduced-motion` queda estático, y los destellos están limitados a uno cada 400 ms (2.3.1).
 - El audio **nunca** empieza sin una acción del usuario; pausa y volumen siempre visibles (1.4.2).
-- Contraste de texto ≥ 7:1 en el peor caso; bordes de controles ≥ 3:1; objetivos ≥ 24 × 24 px; respeta `prefers-reduced-motion` y el modo de alto contraste de Windows.
+- El diseño usa colores de texto de alto contraste, foco visible, soporte para movimiento reducido y colores forzados de Windows. Hay que comprobar contraste y tamaño de objetivos en cada componente, estado y tamaño de pantalla; estas notas de implementación no demuestran por sí solas conformidad WCAG.
 
-**Pruebas realizadas:** axe-core 4.14 sin violaciones (WCAG 2.0/2.1/2.2 A y AA + buenas prácticas); recorrido completo solo con teclado en Chrome.
-**Pendiente:** prueba manual con NVDA y Lighthouse.
-**Limitación conocida:** en pantallas de móvil estrechas las celdas de la cuadrícula miden menos de 24 px. La posición de cada celda es la información misma (excepción "esencial" de 2.5.8) y el teclado ofrece navegación completa.
+**Pruebas registradas por el equipo:** axe-core 4.14 no reportó violaciones y se hizo un recorrido solo con teclado en Chrome. Un análisis automático y un recorrido en un navegador no demuestran conformidad WCAG. **Pendiente:** pruebas manuales con NVDA y VoiceOver, lector de pantalla móvil, personas ciegas o con baja visión, y revisión de contraste y tamaño de objetivos en cada estado y tamaño de pantalla. La cuadrícula táctil de 16 × 9 es densa y sus celdas miden menos de 24 px en móviles estrechos. Documenten la excepción aplicable de WCAG 2.5.8 o añadan controles táctiles alternativos de mayor tamaño; el acceso por teclado por sí solo no resuelve el tamaño de los objetivos.
 
 ## Estructura
 
 ```
 frontend/
 ├── index.html
-├── scripts/fetch-images.mjs        descarga desde NASA SVS API
+├── scripts/fetch-images.mjs        descarga imágenes y actualiza copia de API NASA
+├── scripts/prepare-3d-frames.mjs   muestrea video 3D y filtra cuadros con OCR
 ├── public/images/                  copias locales de las visualizaciones
 └── src/
     ├── main.js
     ├── assets/earth-avatar.svg         avatar animado (Tierra con auriculares)
-    ├── data/playlist.json
+    ├── data/source-catalog.json        IDs NASA curados y reglas del catálogo en vivo
+    ├── data/pilot-5011-sonification.md especificación del piloto cuantitativo
+    ├── data/video-4960-sonification.md especificación de muestreo del video 3D
     ├── api/nasa-api.js                 catálogo en vivo (búsqueda + detalles, caché)
     ├── processing/image-processor.js   Canvas → cuadrícula 16 × 9
     ├── analysis/features.js            brillo, tono, saturación, textura, descripciones
