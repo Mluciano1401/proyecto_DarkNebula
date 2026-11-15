@@ -16,7 +16,8 @@ const state = {
   playing: false,
   repeatId: null,
   baseTempo: 120,
-  volume: 0.7,
+  volume: 0.55,
+  ducked: false,
   soundStyle: 'ambiental',
 };
 const handlers = { onCell: () => {}, onEnd: () => {} };
@@ -29,48 +30,49 @@ export function setHandlers({ onCell, onEnd } = {}) {
 const volumeToDb = (v) => (v <= 0.001 ? -Infinity : 20 * Math.log10(v) - 6);
 
 async function build() {
-  const limiter = new Tone.Limiter(-1).toDestination();
+  const limiter = new Tone.Limiter(-6).toDestination();
   // Un solo analizador (nivel + espectro) sobre la salida final, para la animación.
   const meter = new Tone.Meter({ smoothing: 0.8 });
   const fft = new Tone.FFT({ size: 64 });
   limiter.fan(meter, fft);
-  const duck = new Tone.Gain(1).connect(limiter); // baja la música mientras habla el narrador
+  const duck = new Tone.Gain(state.ducked ? 0.08 : 1).connect(limiter); // prioriza la narración
   const master = new Tone.Volume(volumeToDb(state.volume)).connect(duck);
-  const reverb = new Tone.Reverb({ decay: 2.2, wet: 0.22 }).connect(master);
+  const reverb = new Tone.Reverb({ decay: 1.1, wet: 0.1 }).connect(master);
   const panner = new Tone.Panner(0).connect(reverb);
   const filter = new Tone.Filter(DEFAULT_SOUND_STYLE.cutoff, 'lowpass').connect(panner);
 
   const envelope = { attack: 0.01, decay: 0.15, sustain: 0.5, release: DEFAULT_SOUND_STYLE.release };
-  const soft = new Tone.PolySynth(Tone.Synth, { oscillator: { type: DEFAULT_SOUND_STYLE.soft }, envelope }).connect(panner);
-  const bright = new Tone.PolySynth(Tone.Synth, { oscillator: { type: DEFAULT_SOUND_STYLE.bright }, envelope }).connect(filter);
-  soft.volume.value = -6;
-  bright.volume.value = -14;
+  const soft = new Tone.PolySynth(Tone.Synth, { maxPolyphony: 8, oscillator: { type: DEFAULT_SOUND_STYLE.soft }, envelope }).connect(panner);
+  const bright = new Tone.PolySynth(Tone.Synth, { maxPolyphony: 8, oscillator: { type: DEFAULT_SOUND_STYLE.bright }, envelope }).connect(filter);
+  soft.volume.value = -9;
+  bright.volume.value = -18;
 
   const bell = new Tone.FMSynth({
     harmonicity: 3.01,
-    modulationIndex: 10,
+    modulationIndex: 6,
     envelope: { attack: 0.001, decay: 0.9, sustain: 0, release: 0.6 },
     modulationEnvelope: { attack: 0.002, decay: 0.3, sustain: 0, release: 0.3 },
   }).connect(panner);
-  bell.volume.value = -16;
+  bell.volume.value = -22;
 
   const bass = new Tone.Synth({
     oscillator: { type: 'sine' },
     envelope: { attack: 0.2, decay: 0.3, sustain: 0.7, release: 1.2 },
   }).connect(reverb);
-  bass.volume.value = -18;
+  bass.volume.value = -23;
 
   const accompaniment = new Tone.PolySynth(Tone.Synth, {
+    maxPolyphony: 8,
     oscillator: { type: 'triangle' },
     envelope: { attack: 0.025, decay: 0.25, sustain: 0.2, release: 0.7 },
   }).connect(reverb);
-  accompaniment.volume.value = -24;
+  accompaniment.volume.value = -30;
   const pulse = new Tone.MembraneSynth({
     pitchDecay: 0.04,
     octaves: 3,
     envelope: { attack: 0.001, decay: 0.16, sustain: 0, release: 0.05 },
   }).connect(master);
-  pulse.volume.value = -25;
+  pulse.volume.value = -30;
 
   await reverb.ready;
   nodes = { limiter, meter, fft, duck, master, reverb, panner, filter, soft, bright, bell, bass, accompaniment, pulse };
@@ -79,7 +81,10 @@ async function build() {
 
 export async function ensureAudio() {
   await Tone.start();
-  if (!nodes) await build();
+  if (!nodes) {
+    Tone.getContext().lookAhead = 0.15;
+    await build();
+  }
 }
 
 function applySoundStyle() {
@@ -109,7 +114,7 @@ function playMapped(m, time, slot) {
     if (vs > 0.04) soft.triggerAttackRelease(m.note, dur, t, vs);
     if (vb > 0.04) bright.triggerAttackRelease(m.note, dur, t, vb);
   }
-  if (m.accent) bell.triggerAttackRelease(Tone.Frequency(m.note).transpose(12).toNote(), 0.25, time, 0.7);
+  if (m.accent) bell.triggerAttackRelease(Tone.Frequency(m.note).transpose(12).toNote(), 0.2, time, 0.45);
 }
 
 const cellAt = (row, col) => state.analysis.cells[row * state.analysis.cols + col];
@@ -134,7 +139,7 @@ function onStep(time) {
     nodes.panner.pan.setValueAtTime(state.mapped[col].pan, time);
     let avg = 0;
     for (let r = 0; r < rows; r++) avg += cellAt(r, col).brightnessN / rows;
-    nodes.bass.triggerAttackRelease(bassForBrightness(avg), noteSlot * rows * 0.95, time, 0.6);
+    nodes.bass.triggerAttackRelease(bassForBrightness(avg), noteSlot * rows * 0.9, time, 0.4);
   }
   const cell = cellAt(row, col);
   const mapped = state.mapped[row * cols + col];
@@ -144,14 +149,14 @@ function onStep(time) {
   // mapeadas; nunca cambia altura, ritmo ni posición que representan la imagen.
   if (arrangement === 'chords' && row % 3 === 0) {
     nodes.accompaniment.triggerAttackRelease(
-      [mapped.note, Tone.Frequency(mapped.note).transpose(3).toNote(), Tone.Frequency(mapped.note).transpose(7).toNote()],
-      noteSlot * 2.7,
+      [mapped.note, Tone.Frequency(mapped.note).transpose(7).toNote()],
+      noteSlot * 2.2,
       time,
-      0.24,
+      0.16,
     );
   } else if (arrangement === 'pulse' && row === 0) {
-    nodes.pulse.triggerAttackRelease('C1', '16n', time, 0.35);
-    nodes.pulse.triggerAttackRelease('C1', '16n', time + noteSlot * 0.5, 0.2);
+    nodes.pulse.triggerAttackRelease('C3', '16n', time, 0.22);
+    nodes.pulse.triggerAttackRelease('C3', '16n', time + noteSlot * 0.5, 0.14);
   }
   draw.schedule(() => handlers.onCell(cell, 'auto'), time);
 }
@@ -189,7 +194,8 @@ export function setVolume(v) {
 }
 
 export function duck(on) {
-  if (nodes) nodes.duck.gain.rampTo(on ? 0.3 : 1, 0.25);
+  state.ducked = on;
+  if (nodes) nodes.duck.gain.rampTo(on ? 0.08 : 1, on ? 0.06 : 0.45);
 }
 
 export async function play() {
@@ -253,18 +259,18 @@ export async function playCell(cell) {
   if (!state.analysis) return;
   await ensureAudio();
   const m = state.mapped[cell.row * state.analysis.cols + cell.col];
-  const now = Tone.now() + 0.02;
+  const now = Tone.immediate() + 0.01;
   nodes.panner.pan.setValueAtTime(m.pan, now);
   playMapped(m, now, 0.7);
   const arrangement = (SOUND_STYLES[state.soundStyle] ?? DEFAULT_SOUND_STYLE).arrangement;
   if (arrangement === 'chords') {
     nodes.accompaniment.triggerAttackRelease(
-      [m.note, Tone.Frequency(m.note).transpose(3).toNote(), Tone.Frequency(m.note).transpose(7).toNote()],
-      0.6,
+      [m.note, Tone.Frequency(m.note).transpose(7).toNote()],
+      0.5,
       now,
-      0.24,
+      0.16,
     );
   } else if (arrangement === 'pulse') {
-    nodes.pulse.triggerAttackRelease('C1', '16n', now, 0.35);
+    nodes.pulse.triggerAttackRelease('C3', '16n', now, 0.22);
   }
 }

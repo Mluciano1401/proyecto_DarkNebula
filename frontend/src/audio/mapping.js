@@ -3,7 +3,9 @@
 
 // Escala pentatónica de Do en 2 octavas: cualquier combinación de notas suena consonante.
 export const SCALE = ['C4', 'D4', 'E4', 'G4', 'A4', 'C5', 'D5', 'E5', 'G5', 'A5', 'C6'];
-export const BASS_SCALE = ['C2', 'D2', 'E2', 'G2', 'A2', 'C3'];
+// Registro medio-grave: conserva el orden brillo→altura y se oye mejor en
+// altavoces pequeños que el subgrave (C2) habitual en teléfonos.
+export const BASS_SCALE = ['C3', 'D3', 'E3', 'G3', 'A3', 'C4'];
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 const pick = (scale, x) => scale[Math.round(clamp01(x) * (scale.length - 1))];
