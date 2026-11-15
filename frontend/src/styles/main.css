@@ -118,6 +118,45 @@ button {
   color: var(--text-secondary);
 }
 
+.topbar-end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* Selector de idioma EN / ES: píldora segmentada. El idioma activo va relleno
+   (no depende solo del tono del color). */
+.lang-switch {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+}
+
+.lang-btn {
+  min-width: 44px;
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--text-eyebrow);
+  letter-spacing: var(--tracking-eyebrow);
+  transition: color var(--duration-fast) ease, background-color var(--duration-fast) ease;
+}
+
+.lang-btn:hover {
+  color: var(--text-primary);
+}
+
+.lang-btn[aria-pressed='true'] {
+  background: var(--color-uv);
+  color: var(--color-void-canvas);
+}
+
 /* #6633ee solo vive dentro de este degradado, nunca como relleno plano. */
 .hero {
   margin-top: var(--space-6);

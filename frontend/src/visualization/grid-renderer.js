@@ -2,6 +2,7 @@
 // Patrón ARIA "grid" con roving tabindex: solo la celda activa tiene tabindex=0.
 
 import { select, range } from 'd3';
+import { t } from '../i18n/i18n.js';
 
 export function createGrid(container, { onActivate, onMove, onToggle }) {
   const root = select(container).attr('role', 'grid');
@@ -17,10 +18,7 @@ export function createGrid(container, { onActivate, onMove, onToggle }) {
     playingEl = null;
     active.row = Math.min(active.row, a.rows - 1);
     active.col = Math.min(active.col, a.cols - 1);
-    root.attr(
-      'aria-label',
-      `Cuadrícula de la imagen: ${a.rows} filas por ${a.cols} columnas. Flechas para moverte, Enter para escuchar una celda, Espacio para reproducir o pausar.`,
-    );
+    root.attr('aria-label', t('grid.label', { rows: a.rows, cols: a.cols }));
     const rowsData = range(a.rows).map((r) => a.cells.slice(r * a.cols, (r + 1) * a.cols));
     root
       .selectAll('div.grid-row')

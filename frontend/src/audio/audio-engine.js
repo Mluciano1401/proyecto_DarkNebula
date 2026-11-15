@@ -27,17 +27,23 @@ export function setHandlers({ onCell, onEnd } = {}) {
   if (onEnd) handlers.onEnd = onEnd;
 }
 
-// +6 dB de ganancia de compensación: con -6 dB la pieza salía con picos de ~-25 dBFS,
-// casi inaudible en altavoces de teléfono y portátil. El limitador sigue evitando la saturación.
-const volumeToDb = (v) => (v <= 0.001 ? -Infinity : 20 * Math.log10(v) + 6);
+// +12 dB de ganancia de compensación: con -6 dB la pieza salía con picos de ~-22 dBFS
+// (promedio ~-38 dBFS), casi inaudible en teléfonos y portátiles y muy por debajo de
+// la narración. El limitador sigue evitando la saturación.
+const volumeToDb = (v) => (v <= 0.001 ? -Infinity : 20 * Math.log10(v) + 12);
+// Ganancia de la música mientras habla el narrador (~-9 dB): la voz queda delante,
+// pero la música se sigue oyendo. Con 0,08 (-22 dB) la voz la tapaba por completo.
+const DUCK_GAIN = 0.35;
 
 async function build() {
-  const limiter = new Tone.Limiter(-6).toDestination();
+  // Limitador de rodilla dura. Tone.Limiter usa la rodilla de 30 dB del compresor
+  // nativo y, con el volumen alto, dejaba pasar picos por encima de 0 dBFS (saturación).
+  const limiter = new Tone.Compressor({ threshold: -3, knee: 0, ratio: 20, attack: 0.002, release: 0.12 }).toDestination();
   // Un solo analizador (nivel + espectro) sobre la salida final, para la animación.
   const meter = new Tone.Meter({ smoothing: 0.8 });
   const fft = new Tone.FFT({ size: 64 });
   limiter.fan(meter, fft);
-  const duck = new Tone.Gain(state.ducked ? 0.08 : 1).connect(limiter); // prioriza la narración
+  const duck = new Tone.Gain(state.ducked ? DUCK_GAIN : 1).connect(limiter); // prioriza la narración
   const master = new Tone.Volume(volumeToDb(state.volume)).connect(duck);
   const reverb = new Tone.Reverb({ decay: 1.1, wet: 0.1 }).connect(master);
   const panner = new Tone.Panner(0).connect(reverb);
@@ -224,7 +230,7 @@ export function setVolume(v) {
 
 export function duck(on) {
   state.ducked = on;
-  if (nodes) nodes.duck.gain.rampTo(on ? 0.08 : 1, on ? 0.06 : 0.45);
+  if (nodes) nodes.duck.gain.rampTo(on ? DUCK_GAIN : 1, on ? 0.15 : 0.45);
 }
 
 export async function play() {

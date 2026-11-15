@@ -1,29 +1,31 @@
 // Interfaz tipo rocola: pantalla con imagen + cuadrícula, anterior / reproducir / siguiente,
-// menú de temas que filtra la playlist, modo, volumen, tempo y narración.
+// menú de temas que filtra la playlist, modo, volumen, tempo, narración e idioma.
 
 import { loadImage, processImage } from '../processing/image-processor.js';
-import { computeFeatures } from '../analysis/features.js';
+import { computeFeatures, describeCell, relabel } from '../analysis/features.js';
 import * as engine from '../audio/audio-engine.js';
 import { createGrid } from '../visualization/grid-renderer.js';
 import * as narrator from '../accessibility/narrator.js';
 import { fetchCatalog, fetchCuratedImages } from '../api/nasa-api.js';
+import { getLang, onLangChange, setLang, setPlainText, setText, t } from '../i18n/i18n.js';
 import * as avatar from './earth-avatar.js';
 
 const $ = (id) => document.getElementById(id);
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+// Los textos de NASA llegan en inglés; las etiquetas, en el idioma de la interfaz.
 const nasaInfoText = (item) => [
-  'Sonificación actual: rasgos visuales de la imagen; no equivale a los datos numéricos originales de NASA.',
+  t('info.note'),
   item.description,
-  item.pageType && `Tipo: ${item.pageType}`,
-  item.categories?.length && `Categoría NASA: ${item.categories.join(', ')}`,
-  item.variables?.length && `Variables registradas por la API: ${item.variables.join(', ')}`,
-  item.units && `Unidades en la API: ${item.units}`,
-  item.period && `Periodo indicado por la API: ${item.period}`,
-  item.releaseDate && `Publicación NASA: ${item.releaseDate}`,
-  item.updateDate && `Actualización NASA: ${item.updateDate}`,
-  item.datasets?.length && `Conjuntos de datos: ${item.datasets.map((dataset) => [dataset.name, dataset.common_name, dataset.platform, dataset.sensor, dataset.description, dataset.date_range].filter(Boolean).join(' — ')).join('; ')}`,
-  item.keywords?.length && `Palabras clave NASA: ${item.keywords.join(', ')}`,
-  item.credit && `Créditos: ${item.credit}`,
+  item.pageType && t('info.type', { v: item.pageType }),
+  item.categories?.length && t('info.category', { v: item.categories.join(', ') }),
+  item.variables?.length && t('info.variables', { v: item.variables.join(', ') }),
+  item.units && t('info.units', { v: item.units }),
+  item.period && t('info.period', { v: item.period }),
+  item.releaseDate && t('info.released', { v: item.releaseDate }),
+  item.updateDate && t('info.updated', { v: item.updateDate }),
+  item.datasets?.length && t('info.datasets', { v: item.datasets.map((dataset) => [dataset.name, dataset.common_name, dataset.platform, dataset.sensor, dataset.description, dataset.date_range].filter(Boolean).join(' — ')).join('; ') }),
+  item.keywords?.length && t('info.keywords', { v: item.keywords.join(', ') }),
+  item.credit && t('info.credits', { v: item.credit }),
 ].filter(Boolean).join('\n\n');
 
 export function createJukebox(initialPlaylist = []) {
@@ -53,6 +55,7 @@ export function createJukebox(initialPlaylist = []) {
     motion: $('btn-motion'),
     live: $('btn-live'),
     liveStatus: $('live-status'),
+    langButtons: document.querySelectorAll('#lang-switch [data-lang]'),
     modes: document.querySelectorAll('input[name="mode"]'),
   };
 
@@ -60,11 +63,13 @@ export function createJukebox(initialPlaylist = []) {
     filter: 'todos',
     items: playlist,
     current: null,
+    analysis: null,
     mode: 'auto',
     cache: new Map(),
     loadToken: 0,
     loading: false,
     playWhenReady: false,
+    uiPlaying: false,
   };
 
   // --- Anuncios (aria-live) y narración ------------------------------------
@@ -94,7 +99,7 @@ export function createJukebox(initialPlaylist = []) {
   });
 
   function showCell(cell) {
-    el.cell.textContent = cell.description;
+    setText(el.cell, () => describeCell(cell));
   }
 
   function listenCell(cell) {
@@ -114,17 +119,18 @@ export function createJukebox(initialPlaylist = []) {
     onEnd: () => {
       grid.highlight(null);
       setPlayingUI(false);
-      announce('Fin de la pieza. Pulsa Reproducir para escucharla otra vez.');
+      announce(t('status.end'));
     },
   });
 
   // --- Reproducción ----------------------------------------------------------
   function setPlayingUI(playing) {
+    state.uiPlaying = playing;
     el.play.classList.toggle('is-playing', playing);
     el.albums.classList.toggle('is-playing', playing); // el vinilo del álbum actual gira
     avatar.setPlaying(playing);
-    el.play.setAttribute('aria-label', playing ? 'Pausar' : 'Reproducir');
-    el.label.textContent = playing ? 'Sonando' : 'Seleccionada';
+    el.play.setAttribute('aria-label', t(playing ? 'play.pause' : 'play.play'));
+    setText(el.label, playing ? 'now.playing' : 'now.selected');
   }
 
   async function play() {
@@ -140,19 +146,19 @@ export function createJukebox(initialPlaylist = []) {
       // Aún se analiza la imagen: arrancará en cuanto esté lista.
       state.playWhenReady = !state.playWhenReady;
       setPlayingUI(state.playWhenReady);
-      announce(state.playWhenReady ? 'Cargando la imagen; sonará en cuanto esté lista.' : 'Pausado.');
+      announce(t(state.playWhenReady ? 'status.queued' : 'status.paused'));
       return;
     }
     if (engine.isPlaying()) {
       engine.pause();
       setPlayingUI(false);
-      announce('Pausado.');
+      announce(t('status.paused'));
     } else {
-      // Pulsar Reproducir corta la narración en curso; si no, la música sonaría al 8 %
-      // (atenuada para la voz) durante toda la lectura de la descripción.
+      // Pulsar Reproducir corta la narración en curso; si no, la música sonaría atenuada
+      // (bajada para dejar oír la voz) durante toda la lectura de la descripción.
       narrator.cancel();
       await play();
-      announce(`Reproduciendo ${state.current.title}.`);
+      announce(t('status.playing', { title: state.current.title }));
     }
   }
 
@@ -165,16 +171,12 @@ export function createJukebox(initialPlaylist = []) {
     }
     grid.highlight(null);
     if (silent) return;
-    announce(
-      mode === 'explore'
-        ? 'Modo exploración: entra en la cuadrícula y muévete con las flechas; cada celda suena al instante.'
-        : 'Modo automático: pulsa Reproducir para recorrer la imagen de izquierda a derecha.',
-    );
+    announce(t(mode === 'explore' ? 'status.modeExplore' : 'status.modeAuto'));
   }
 
   // --- Selección de imagen ---------------------------------------------------
   async function analyze(item) {
-    if (state.cache.has(item.id)) return state.cache.get(item.id);
+    if (state.cache.has(item.id)) return relabel(state.cache.get(item.id));
     const analysis = computeFeatures(processImage(await loadImage(item.image)));
     state.cache.set(item.id, analysis);
     return analysis;
@@ -186,16 +188,18 @@ export function createJukebox(initialPlaylist = []) {
     grid.highlight(null);
     const token = ++state.loadToken;
     state.current = item;
+    state.analysis = null;
     state.loading = true;
     $('grid').setAttribute('aria-busy', 'true');
 
-    el.title.textContent = item.title;
+    setPlainText(el.title, item.title);
+    el.title.lang = 'en'; // título original de NASA
     el.theme.textContent = item.theme ? capitalize(item.theme) : '';
     el.theme.dataset.theme = item.theme;
     el.art.src = item.image;
     el.art.alt = item.altText;
-    el.desc.textContent = nasaInfoText(item);
-    el.summary.textContent = 'Analizando la imagen…';
+    setText(el.desc, () => nasaInfoText(item));
+    setText(el.summary, 'status.analyzing');
     el.link.href = item.nasaUrl;
     el.apiLink.href = item.apiUrl;
     renderAlbums();
@@ -203,11 +207,12 @@ export function createJukebox(initialPlaylist = []) {
     try {
       const analysis = await analyze(item);
       if (token !== state.loadToken) return; // el usuario ya eligió otra
+      state.analysis = analysis;
       engine.setAnalysis(analysis);
       grid.render(analysis);
-      el.summary.textContent = analysis.summary;
-      el.cell.textContent = 'Elige una celda con el ratón o con las flechas del teclado.';
-      announce(`Imagen cargada: ${item.title}.`);
+      setText(el.summary, () => relabel(analysis).summary);
+      setText(el.cell, 'cell.prompt');
+      announce(t('status.loaded', { title: item.title }));
       if (speak) narrate(`${item.title}. ${analysis.summary}`);
       finishLoading();
       if (state.playWhenReady) await play();
@@ -219,8 +224,8 @@ export function createJukebox(initialPlaylist = []) {
       finishLoading();
       state.playWhenReady = false;
       setPlayingUI(false);
-      el.summary.textContent = 'No se pudo analizar esta imagen.';
-      announce(`No se pudo cargar la imagen ${item.title}.`);
+      setText(el.summary, 'status.analyzeFailed');
+      announce(t('status.loadFailed', { title: item.title }));
     }
   }
 
@@ -238,18 +243,20 @@ export function createJukebox(initialPlaylist = []) {
   }
 
   // --- Menú: temas y álbumes -------------------------------------------------
+  const themeLabel = (theme) => (theme === 'todos' ? t('themes.all') : capitalize(theme));
+
   function renderThemes() {
     const present = [...new Set(playlist.map((item) => item.theme).filter(Boolean))].sort((a, b) => a.localeCompare(b));
     const options = ['todos', ...present];
     el.themes.replaceChildren(
-      ...options.map((t) => {
+      ...options.map((theme) => {
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'theme-btn';
-        b.dataset.theme = t;
-        b.textContent = capitalize(t);
-        b.setAttribute('aria-pressed', String(t === state.filter));
-        b.addEventListener('click', () => setFilter(t));
+        b.dataset.theme = theme;
+        b.textContent = themeLabel(theme);
+        b.setAttribute('aria-pressed', String(theme === state.filter));
+        b.addEventListener('click', () => setFilter(theme));
         return b;
       }),
     );
@@ -260,8 +267,7 @@ export function createJukebox(initialPlaylist = []) {
     state.items = theme === 'todos' ? playlist : playlist.filter((p) => p.theme === theme);
     for (const b of el.themes.children) b.setAttribute('aria-pressed', String(b.dataset.theme === theme));
     renderAlbums();
-    const n = state.items.length;
-    announce(`${capitalize(theme)}: ${n} ${n === 1 ? 'imagen' : 'imágenes'}.`);
+    announce(t('status.filter', { theme: themeLabel(theme), n: state.items.length }));
   }
 
   const span = (className, text) => {
@@ -296,10 +302,12 @@ export function createJukebox(initialPlaylist = []) {
         art.append(span('vinyl'), cover);
 
         const text = span('album-text');
+        const title = span('album-title', item.title);
+        title.lang = 'en'; // título original de NASA
         text.append(
-          span('album-title', item.title),
+          title,
           span('album-artist', item.credit || ''),
-          item.theme ? span('theme-chip', capitalize(item.theme) + (item.live ? ' · en vivo' : '')) : document.createTextNode(''),
+          item.theme ? span('theme-chip', capitalize(item.theme) + (item.live ? t('album.live') : '')) : document.createTextNode(''),
         );
         b.append(art, text);
         b.addEventListener('click', () => selectItem(item));
@@ -321,33 +329,28 @@ export function createJukebox(initialPlaylist = []) {
 
   el.volume.addEventListener('input', () => {
     engine.setVolume(el.volume.value / 100);
-    el.volumeOut.textContent = `${el.volume.value} %`;
+    setText(el.volumeOut, 'volume.value', { v: el.volume.value });
     paintRange(el.volume);
   });
   el.tempo.addEventListener('input', () => {
     engine.setTempo(+el.tempo.value);
-    el.tempoOut.textContent = `${el.tempo.value} bpm`;
+    setText(el.tempoOut, 'tempo.value', { v: el.tempo.value });
     paintRange(el.tempo);
   });
   paintRange(el.volume);
   paintRange(el.tempo);
 
   el.soundStyle.addEventListener('change', () => {
-    engine.setSoundStyle(el.soundStyle.value);
-    const styleName = el.soundStyle.selectedOptions[0].textContent;
-    const arrangements = {
-      ambiental: 'notas sostenidas',
-      clasica: 'acordes de acompañamiento',
-      electronica: 'pulsos rítmicos',
-    };
-    announce(`Género ${styleName}: ${arrangements[el.soundStyle.value]}. Se conserva el motivo y el mapeo de la imagen.`);
+    const style = el.soundStyle.value;
+    engine.setSoundStyle(style);
+    announce(t('status.style', { name: t(`style.${style}`), arrangement: t(`arrangement.${style}`) }));
   });
 
-  // Nombre accesible fijo ("Narración") + aria-pressed; el estado visible va en un
+  // Nombre accesible fijo ("Narration") + aria-pressed; el estado visible va en un
   // span oculto al lector para que no se anuncie dos veces.
   function renderNarration() {
     if (!narrator.isSupported()) {
-      el.narration.textContent = 'Narración no disponible';
+      el.narration.textContent = t('narration.unavailable');
       el.narration.disabled = true;
       el.narration.removeAttribute('aria-pressed');
       return;
@@ -356,14 +359,14 @@ export function createJukebox(initialPlaylist = []) {
     el.narration.setAttribute('aria-pressed', String(on));
     const state = document.createElement('span');
     state.setAttribute('aria-hidden', 'true');
-    state.textContent = on ? ': activada' : ': desactivada';
-    el.narration.replaceChildren('Narración', state);
+    state.textContent = t(on ? 'narration.on' : 'narration.off');
+    el.narration.replaceChildren(t('narration.name'), state);
   }
   el.narration.addEventListener('click', () => {
     narrator.setEnabled(!narrator.isEnabled());
     renderNarration();
     engine.duck(false);
-    announce(narrator.isEnabled() ? 'Narración activada.' : 'Narración desactivada.');
+    announce(t(narrator.isEnabled() ? 'status.narrationOn' : 'status.narrationOff'));
   });
 
   // "Pausar animación" (WCAG 2.2.2): congela el avatar y las demás animaciones
@@ -373,28 +376,44 @@ export function createJukebox(initialPlaylist = []) {
     el.motion.setAttribute('aria-pressed', String(paused));
     document.documentElement.classList.toggle('motion-paused', paused);
     avatar.setFrozen(paused);
-    announce(paused ? 'Animación pausada.' : 'Animación reanudada.');
+    announce(t(paused ? 'status.animPaused' : 'status.animResumed'));
+  });
+
+  // --- Idioma --------------------------------------------------------------------
+  function renderLangSwitch() {
+    for (const b of el.langButtons) b.setAttribute('aria-pressed', String(b.dataset.lang === getLang()));
+  }
+  for (const b of el.langButtons) b.addEventListener('click', () => setLang(b.dataset.lang));
+  // Lo que se construye en JS se vuelve a generar; los textos ligados con setText y
+  // los del HTML (data-i18n) los traduce translateDom().
+  onLangChange(() => {
+    renderLangSwitch();
+    renderThemes();
+    renderAlbums();
+    renderNarration();
+    setPlayingUI(state.uiPlaying);
+    if (state.analysis) grid.render(relabel(state.analysis));
+    announce(t('lang.changed'));
   });
 
   // --- Catálogo en vivo (opcional) ------------------------------------------------
   el.live.addEventListener('click', async () => {
     el.live.disabled = true;
-    el.liveStatus.textContent = 'Buscando visualizaciones en NASA SVS…';
-    announce('Buscando visualizaciones en NASA SVS.');
+    setText(el.liveStatus, 'live.searching');
+    announce(t('live.searching'));
     try {
-      const items = await fetchCatalog({ exclude: playlist.map((p) => p.id) });
+      const { items, snapshotDate } = await fetchCatalog({ exclude: playlist.map((p) => p.id) });
       const fresh = items.filter((i) => !playlist.some((p) => p.id === i.id));
       playlist.push(...fresh);
+      renderThemes();
       setFilter(state.filter);
-      const msg = `Se ${fresh.length === 1 ? 'añadió 1 visualización' : `añadieron ${fresh.length} visualizaciones`} del catálogo en vivo (textos originales en inglés).`;
-      el.liveStatus.textContent = msg;
-      announce(msg);
+      setText(el.liveStatus, 'live.added', { n: fresh.length, date: snapshotDate });
+      announce(t('live.added', { n: fresh.length, date: snapshotDate }));
       el.live.hidden = true;
     } catch (err) {
       console.warn('Catálogo en vivo no disponible:', err);
-      const msg = 'El catálogo en vivo no está disponible ahora. Inténtalo de nuevo cuando haya conexión.';
-      el.liveStatus.textContent = msg;
-      announce(msg);
+      setText(el.liveStatus, 'live.unavailable');
+      announce(t('live.unavailable'));
       el.live.disabled = false;
     }
   });
@@ -403,37 +422,38 @@ export function createJukebox(initialPlaylist = []) {
   avatar.mountEarthAvatar($('earth-avatar'));
   engine.setVolume(el.volume.value / 100);
   engine.setTempo(+el.tempo.value);
+  setText(el.volumeOut, 'volume.value', { v: el.volume.value });
+  setText(el.tempoOut, 'tempo.value', { v: el.tempo.value });
+  setPlayingUI(false);
+  renderLangSwitch();
   renderNarration();
   renderThemes();
   // Los metadatos e imágenes de la colección curada se consultan desde NASA SVS;
   // el proyecto solo conserva la selección de identificadores.
   return (async () => {
     try {
-      el.liveStatus.textContent = 'Cargando imágenes oficiales de NASA SVS…';
+      setText(el.liveStatus, 'curated.loading');
       const { items: images, failedIds, snapshotDate } = await fetchCuratedImages();
       const fresh = images.filter((item) => !playlist.some((existing) => existing.id === item.id));
       playlist.push(...fresh);
       setFilter(state.filter);
       renderThemes();
       // Sin proxy (GitHub Pages) los metadatos vienen de la copia de la API guardada al desplegar.
-      const loadedMessage = snapshotDate
-        ? `${fresh.length} imágenes y sus metadatos de NASA SVS (copia de la API del ${new Date(snapshotDate).toLocaleDateString('es')}).`
-        : `${fresh.length} imágenes y sus metadatos cargados desde las API de NASA.`;
-      const message = failedIds.length
-        ? `${loadedMessage} No cargaron las imágenes ${failedIds.join(', ')}.`
-        : loadedMessage;
-      el.liveStatus.textContent = message;
+      const message = () =>
+        t('curated.loaded', { n: fresh.length, date: snapshotDate }) +
+        (failedIds.length ? t('curated.failed', { ids: failedIds.join(', ') }) : '');
+      setText(el.liveStatus, message);
       if (fresh.length) await selectItem(fresh[0], { speak: false });
-      announce(message);
+      announce(message());
     } catch (err) {
       console.warn('No se pudo cargar el catálogo curado NASA:', err);
       state.playWhenReady = false;
       setPlayingUI(false);
-      const message = 'No se pudieron cargar los metadatos e imágenes de NASA SVS. Comprueba la conexión y el proxy.';
-      el.liveStatus.textContent = message;
-      el.title.textContent = 'Catálogo de NASA no disponible';
-      el.summary.textContent = message;
-      announce(message);
+      setText(el.liveStatus, 'curated.error');
+      setText(el.title, 'curated.unavailableTitle');
+      el.title.removeAttribute('lang');
+      setText(el.summary, 'curated.error');
+      announce(t('curated.error'));
     }
   })();
 }

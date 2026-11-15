@@ -1,7 +1,10 @@
-// Narración con Web Speech API. Se usa la voz española predeterminada del
-// dispositivo, se limitan los picos y se dividen textos largos en frases cortas.
+// Narración con Web Speech API. Se usa la voz predeterminada del dispositivo para el
+// idioma de la interfaz, se limitan los picos y se dividen textos largos en frases cortas.
+
+import { getLang, onLangChange } from '../i18n/i18n.js';
 
 const supported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+const FALLBACK_LANG = { en: 'en-US', es: 'es-ES' };
 let enabled = supported;
 let voice = null;
 let requestId = 0;
@@ -9,15 +12,21 @@ let activeOnEnd = null;
 
 function pickVoice() {
   if (!supported) return;
-  const spanish = window.speechSynthesis.getVoices().filter((item) => item.lang?.toLowerCase().startsWith('es'));
-  // Respeta la voz española marcada como predeterminada en el teléfono; no fuerza
-  // una variante regional que podría no estar instalada o sonar menos natural.
-  voice = spanish.find((item) => item.default) ?? spanish[0] ?? null;
+  const lang = getLang();
+  const matching = window.speechSynthesis.getVoices().filter((item) => item.lang?.toLowerCase().startsWith(lang));
+  // Respeta la voz marcada como predeterminada en el teléfono; no fuerza una
+  // variante regional que podría no estar instalada o sonar menos natural.
+  voice = matching.find((item) => item.default) ?? matching[0] ?? null;
 }
 
 if (supported) {
   pickVoice();
   window.speechSynthesis.addEventListener?.('voiceschanged', pickVoice);
+  // Al cambiar de idioma se corta la frase en curso y se elige otra voz.
+  onLangChange(() => {
+    cancel();
+    pickVoice();
+  });
 }
 
 export const isSupported = () => supported;
@@ -88,7 +97,7 @@ export function speak(text, { onStart, onEnd } = {}) {
       return;
     }
     const utterance = new SpeechSynthesisUtterance(chunks[index++]);
-    utterance.lang = voice?.lang ?? 'es-ES';
+    utterance.lang = voice?.lang ?? FALLBACK_LANG[getLang()];
     if (voice) utterance.voice = voice;
     utterance.rate = 0.94;
     utterance.pitch = 1;

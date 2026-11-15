@@ -1,6 +1,8 @@
 // Convierte las celdas de color en características visuales (0–1), detecta celdas
-// inusuales y genera descripciones en español.
+// inusuales y genera descripciones en el idioma de la interfaz (src/i18n).
 // Importante: describimos VARIACIONES VISUALES, nunca fenómenos (huracanes, incendios...).
+
+import { getLang, t } from '../i18n/i18n.js';
 
 export function rgbToHue(r, g, b) {
   const max = Math.max(r, g, b);
@@ -14,58 +16,75 @@ export function rgbToHue(r, g, b) {
   return (h * 60 + 360) % 360;
 }
 
-// Nombre de color a partir del tono (grados) cuando hay color suficiente.
+// Clave de color a partir del tono (grados) cuando hay color suficiente; el nombre
+// visible sale de t('color.<clave>').
 export function colorName(hue, saturation, brightness) {
   if (saturation < 0.12) {
-    if (brightness < 0.15) return 'negro';
-    if (brightness > 0.8) return 'blanco';
-    return 'gris';
+    if (brightness < 0.15) return 'black';
+    if (brightness > 0.8) return 'white';
+    return 'gray';
   }
-  if (hue < 15 || hue >= 345) return 'rojo';
-  if (hue < 40) return 'naranja';
-  if (hue < 65) return 'amarillo';
-  if (hue < 160) return 'verde';
-  if (hue < 195) return 'turquesa';
-  if (hue < 255) return 'azul';
-  if (hue < 290) return 'violeta';
-  return 'rosa';
+  if (hue < 15 || hue >= 345) return 'red';
+  if (hue < 40) return 'orange';
+  if (hue < 65) return 'yellow';
+  if (hue < 160) return 'green';
+  if (hue < 195) return 'turquoise';
+  if (hue < 255) return 'blue';
+  if (hue < 290) return 'violet';
+  return 'pink';
 }
 
 const mean = (xs) => xs.reduce((a, x) => a + x, 0) / xs.length;
 const std = (xs, m = mean(xs)) => Math.sqrt(mean(xs.map((x) => (x - m) ** 2)));
 
-function brightnessWord(l) {
-  if (l < 0.2) return 'zona muy oscura';
-  if (l < 0.4) return 'zona oscura';
-  if (l < 0.6) return 'zona de brillo medio';
-  if (l < 0.8) return 'zona clara';
-  return 'zona muy clara';
+function brightnessLevel(l) {
+  if (l < 0.2) return 'veryDark';
+  if (l < 0.4) return 'dark';
+  if (l < 0.6) return 'medium';
+  if (l < 0.8) return 'light';
+  return 'veryLight';
 }
 
-function toneWord(cell) {
-  if (cell.saturation < 0.12) return `sin color definido (${cell.color})`;
-  if (cell.warmth > 0.6) return `tonos cálidos (${cell.color})`;
-  if (cell.warmth < 0.4) return `tonos fríos (${cell.color})`;
-  return `tonos intermedios (${cell.color})`;
+function toneLevel(cell) {
+  if (cell.saturation < 0.12) return 'none';
+  if (cell.warmth > 0.6) return 'warm';
+  if (cell.warmth < 0.4) return 'cool';
+  return 'mid';
 }
 
-function textureWord(t) {
-  if (t < 0.03) return 'uniforme';
-  if (t < 0.08) return 'algo de variación';
-  return 'mucha variación';
+function textureLevel(texture) {
+  if (texture < 0.03) return 'uniform';
+  if (texture < 0.08) return 'some';
+  return 'lots';
 }
 
 export function describeCell(cell) {
-  const base = `Fila ${cell.row + 1}, columna ${cell.col + 1}: ${brightnessWord(cell.brightness)}, ${toneWord(cell)}, ${textureWord(cell.texture)}`;
-  return cell.unusual ? `${base}. Variación visual inusual.` : `${base}.`;
+  return t('cell', {
+    row: cell.row + 1,
+    col: cell.col + 1,
+    brightness: brightnessLevel(cell.brightness),
+    tone: toneLevel(cell),
+    color: t(`color.${cell.color}`),
+    texture: textureLevel(cell.texture),
+    unusual: cell.unusual,
+  });
 }
 
-// Posición aproximada en palabras: "arriba a la izquierda", "en el centro"...
+// Posición aproximada en palabras: "at the top left" / "arriba a la izquierda"...
 export function positionWords(row, col, rows, cols) {
-  const v = row < rows / 3 ? 'arriba' : row >= (2 * rows) / 3 ? 'abajo' : 'al centro';
-  const hz = col < cols / 3 ? 'a la izquierda' : col >= (2 * cols) / 3 ? 'a la derecha' : '';
-  if (v === 'al centro' && !hz) return 'en el centro';
-  return hz ? `${v} ${hz}` : v;
+  const v = row < rows / 3 ? 'top' : row >= (2 * rows) / 3 ? 'bottom' : 'middle';
+  const h = col < cols / 3 ? 'left' : col >= (2 * cols) / 3 ? 'right' : 'center';
+  return t('pos', { v, h });
+}
+
+// Vuelve a generar las descripciones y el resumen en el idioma actual (al crear el
+// análisis, al cambiar de idioma o al reutilizar un análisis guardado en caché).
+export function relabel(analysis) {
+  if (analysis.lang === getLang()) return analysis;
+  for (const c of analysis.cells) c.description = describeCell(c);
+  analysis.summary = summarize(analysis);
+  analysis.lang = getLang();
+  return analysis;
 }
 
 export function computeFeatures(grid) {
@@ -106,14 +125,11 @@ export function computeFeatures(grid) {
     c.zBrightness = bStd > 0 ? (c.brightness - bMean) / bStd : 0;
     c.zTexture = tStd > 0 ? (c.texture - tMean) / tStd : 0;
     c.unusual = Math.abs(c.zBrightness) > 2 || Math.abs(c.zTexture) > 2;
-    c.description = describeCell(c);
   }
 
   // Contraste de la imagen: dispersión del brillo entre celdas, llevado a 0–1.
   const contrast = Math.min(1, bStd / 0.25);
-  const analysis = { cols: grid.cols, rows: grid.rows, cells, contrast, meanBrightness: bMean };
-  analysis.summary = summarize(analysis);
-  return analysis;
+  return relabel({ cols: grid.cols, rows: grid.rows, cells, contrast, meanBrightness: bMean, lang: null });
 }
 
 // Resumen en lenguaje natural para la narración y el lector de pantalla.
@@ -125,21 +141,16 @@ export function summarize({ cells, rows, cols, contrast, meanBrightness }) {
 
   const colorful = cells.filter((c) => c.saturation >= 0.12);
   const avgWarmth = colorful.length ? mean(colorful.map((c) => c.warmth)) : 0.5;
-  const tone = avgWarmth > 0.58 ? 'cálidos' : avgWarmth < 0.42 ? 'fríos' : 'mezclados, cálidos y fríos';
-
-  const light = meanBrightness < 0.3 ? 'oscura' : meanBrightness > 0.6 ? 'clara' : 'de brillo medio';
-  const contrastWord = contrast > 0.6 ? 'alto' : contrast > 0.3 ? 'medio' : 'bajo';
-
   const brightest = cells.reduce((a, c) => (c.brightness > a.brightness ? c : a));
   const unusual = cells.filter((c) => c.unusual);
-  const unusualText = unusual.length
-    ? `${unusual.length} ${unusual.length === 1 ? 'zona tiene' : 'zonas tienen'} variaciones visuales inusuales, la primera ${positionWords(unusual[0].row, unusual[0].col, rows, cols)}.`
-    : 'No hay zonas con variaciones visuales inusuales.';
 
-  return (
-    `Imagen ${light}, con contraste ${contrastWord}. ` +
-    `Predominan los tonos ${tone}; los colores más frecuentes son ${colors.join(' y ')}. ` +
-    `La zona más clara está ${positionWords(brightest.row, brightest.col, rows, cols)}. ` +
-    unusualText
-  );
+  return t('summary', {
+    light: meanBrightness < 0.3 ? 'dark' : meanBrightness > 0.6 ? 'light' : 'medium',
+    contrast: contrast > 0.6 ? 'high' : contrast > 0.3 ? 'medium' : 'low',
+    tone: avgWarmth > 0.58 ? 'warm' : avgWarmth < 0.42 ? 'cool' : 'mixed',
+    colors: colors.map((name) => t(`color.${name}`)),
+    brightestPos: positionWords(brightest.row, brightest.col, rows, cols),
+    unusualCount: unusual.length,
+    unusualPos: unusual.length ? positionWords(unusual[0].row, unusual[0].col, rows, cols) : '',
+  });
 }

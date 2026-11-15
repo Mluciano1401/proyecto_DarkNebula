@@ -2,7 +2,7 @@
 
 **Escucha la Tierra.** Una rocola web que convierte visualizaciones científicas de la Tierra de NASA en música, para que personas ciegas o con baja visión puedan explorar los mismos datos que se ven en el Earth Information Center.
 
-Proyecto del equipo **DarkNebula** para NASA Space Apps · reto *Earth Jukebox*.
+Proyecto del equipo **DarkNebula** para NASA Space Apps · reto *The Earth Information Jukebox*.
 
 > **Demo:** https://mluciano1401.github.io/proyecto_DarkNebula/ 
 

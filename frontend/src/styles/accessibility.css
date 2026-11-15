@@ -85,6 +85,10 @@ input[type='range'] {
   .album[aria-current='true'] {
     border-color: Highlight;
   }
+  .lang-btn[aria-pressed='true'] {
+    background: Highlight;
+    color: HighlightText;
+  }
   /* Deslizadores nativos: los personalizados perderían el pulgar en este modo. */
   .slider input[type='range'] {
     -webkit-appearance: auto;

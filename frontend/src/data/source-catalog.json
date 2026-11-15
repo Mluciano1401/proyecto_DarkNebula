@@ -1,7 +1,16 @@
 {
   "apiBase": "https://svs.gsfc.nasa.gov/api/",
   "sourceIds": [5313, 3912, 5669, 5533, 5425, 5196, 5011, 4960, 4950],
-  "metadataPolicy": "Los títulos, descripciones, categorías, fechas, créditos, conjuntos de datos, textos alternativos y recursos multimedia se leen en tiempo de ejecución desde cada respuesta de NASA SVS. Este archivo solo selecciona los identificadores de las piezas.",
+  "metadataPolicy": "Los títulos, descripciones, categorías, fechas, créditos, conjuntos de datos, textos alternativos y recursos multimedia se leen en tiempo de ejecución desde cada respuesta de NASA SVS. Este archivo solo selecciona los identificadores de las piezas y las búsquedas del catálogo en vivo.",
+  "liveQueries": [
+    { "q": "sea surface temperature", "match": "temperature" },
+    { "q": "global temperature", "match": "temperature" },
+    { "q": "sea ice", "match": "\\bice\\b|glacier|snow" },
+    { "q": "ocean", "match": "ocean|\\bsea\\b|marine" },
+    { "q": "vegetation", "match": "vegetation|forest|plant|green|crop" },
+    { "q": "precipitation", "match": "precipitation|rain|storm|hurricane|typhoon|cloud" }
+  ],
+  "livePerQuery": 1,
   "pilotId": 5011,
   "pilotAnalysisDocument": "pilot-5011-sonification.md"
 }

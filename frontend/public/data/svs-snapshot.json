@@ -1,6 +1,13 @@
 {
-  "generatedAt": "2026-11-14T20:27:53.975Z",
+  "generatedAt": "2026-11-15T14:13:31.519Z",
   "source": "https://svs.gsfc.nasa.gov/api/",
+  "catalog": [
+    5613,
+    5677,
+    5681,
+    5688,
+    5690
+  ],
   "items": {
     "3912": {
       "id": 3912,
@@ -564,6 +571,65 @@
         "pixels": 2073600
       }
     },
+    "5613": {
+      "id": 5613,
+      "title": "Shifting Distribution of Land Temperature Anomalies, 1964-2025",
+      "description": "The change in the distribution of land temperature anomalies over the years 1951 to 2025.",
+      "url": "http://svs.gsfc.nasa.gov/5613/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2026-02-04T00:00:00-05:00",
+      "update_date": "2026-02-04T12:11:19.892958-05:00",
+      "keywords": [
+        "Climate",
+        "Climate Change",
+        "Earth Science",
+        "Land Surface",
+        "Land Temperature"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "Mark SubbaRao",
+            "employer": "NASA/GSFC"
+          }
+        ],
+        "Written by": [
+          {
+            "name": "Jenny Marder Fadoul",
+            "employer": "Telophase"
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "GISTEMP",
+          "common_name": "",
+          "platform": null,
+          "sensor": "GISS Surface Temperature Analysis (GISTEMP)",
+          "type": "Model",
+          "organizations": [
+            "NASA/GISS"
+          ],
+          "description": "The GISS Surface Temperature Analysis version 4 (GISTEMP v4) is an estimate of global surface temperature change. Graphs and tables are updated around the middle of every month using current data files from NOAA GHCN v4 (meteorological stations) and ERSST v5 (ocean areas), combined as described in our publications [Hansen et al. (2010)](https://pubs.giss.nasa.gov/abs/ha00510u.html), [Lenssen et al. (2019)](https://pubs.giss.nasa.gov/abs/le05800h.html), and [Lenssen et al. (2024)](https://pubs.giss.nasa.gov/abs/le07900t.html).",
+          "credit": "Lenssen, N., G.A. Schmidt, M. Hendrickson, P. Jacobs, M. Menne, and R. Ruedy, 2024: [A GISTEMPv4 observational uncertainty ensemble](https://pubs.giss.nasa.gov/abs/le07900t.html). J. Geophys. Res. Atmos., 129, no. 17, e2023JD040179, doi:10.1029/2023JD040179.",
+          "url": "https://data.giss.nasa.gov/gistemp/",
+          "date_range": null
+        }
+      ],
+      "main_image": {
+        "id": 1201771,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a005600/a005613/GISTEMPDist_2025_C.png",
+        "filename": "GISTEMPDist_2025_C.png",
+        "media_type": "Image",
+        "alt_text": "The change in the distribution of land temperature anomalies over the years 1964 to 2024. This version is in Celsius, a Fahrenheit version is also available.",
+        "width": 1920,
+        "height": 1080,
+        "pixels": 2073600
+      }
+    },
     "5669": {
       "id": 5669,
       "title": "GEOS Aerosols (2025)",
@@ -621,6 +687,336 @@
         "width": 1920,
         "height": 1080,
         "pixels": 2073600
+      }
+    },
+    "5677": {
+      "id": 5677,
+      "title": "Arctic Sea Ice Minimum 2026",
+      "description": "Arctic sea ice minimum 2026 print still || arctic_sea_ice_min_2026.still_print.jpg (1024x576) [162.0 KB] || arctic_sea_ice_min_2026.still.png (3840x2160) [6.7 MB] || arctic_sea_ice_min_2026.still_searchweb.png (320x180) [68.5 KB] || arctic_sea_ice_min_2026.still_web.png (320x180) [68.5 KB] || arctic_sea_ice_min_2026.still_thm.png (80x40) [6.2 KB] || ",
+      "url": "http://svs.gsfc.nasa.gov/5677/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2026-09-23T13:00:00-04:00",
+      "update_date": "2026-09-23T15:40:09-04:00",
+      "keywords": [
+        "Arctic Circle",
+        "Arctic Ice Thickness",
+        "Climage Change",
+        "Climate",
+        "Climate Change",
+        "Cryology",
+        "Earth Science",
+        "HDTV",
+        "Hyperwall",
+        "Ice Melt",
+        "Oceans",
+        "Physical oceanography",
+        "Sea Ice"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "Trent L. Schindler",
+            "employer": "USRA"
+          }
+        ],
+        "Produced by": [
+          {
+            "name": "James Riordon",
+            "employer": "NASA/GSFC"
+          }
+        ],
+        "Scientific consulting by": [
+          {
+            "name": "Walt Meier",
+            "employer": "NASA/GSFC"
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "Blue Marble: Next Generation",
+          "common_name": "BMNG",
+          "platform": "Terra and Aqua",
+          "sensor": "MODIS",
+          "type": "Other",
+          "organizations": [],
+          "description": "",
+          "credit": "The Blue Marble data is courtesy of Reto Stockli (NASA/GSFC).",
+          "url": "http://earthobservatory.nasa.gov/Newsroom/BlueMarble/",
+          "date_range": null
+        },
+        {
+          "name": "10 km Daily Sea Ice Concentration",
+          "common_name": "",
+          "platform": "SHIZUKU (GCOM-W1)",
+          "sensor": "AMSR2",
+          "type": "Observed Data",
+          "organizations": [
+            "Japan Aerospace Exploration Agency"
+          ],
+          "description": "",
+          "credit": "AMSR2 data courtesy of the Japan Aerospace Exploration Agency (JAXA).",
+          "url": "",
+          "date_range": null
+        },
+        {
+          "name": "10 km Daily 89 GHz Brightness Temperature",
+          "common_name": "",
+          "platform": "SHIZUKU (GCOM-W1)",
+          "sensor": "AMSR2",
+          "type": "Observed Data",
+          "organizations": [
+            "Japan Aerospace Exploration Agency"
+          ],
+          "description": "",
+          "credit": "AMSR2 data courtesy of the Japan Aerospace Exploration Agency (JAXA).",
+          "url": "",
+          "date_range": null
+        }
+      ],
+      "main_image": {
+        "id": 1205781,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a005600/a005677/arctic_sea_ice_min_2026.still_print.jpg",
+        "filename": "arctic_sea_ice_min_2026.still_print.jpg",
+        "media_type": "Image",
+        "alt_text": "Arctic sea ice minimum 2026 print still",
+        "width": 1024,
+        "height": 576,
+        "pixels": 589824
+      }
+    },
+    "5681": {
+      "id": 5681,
+      "title": "Hurricane Polo Makes Landfall in Baja California",
+      "description": "Hurricane Polo became a Tropical Storm on September 20, 2026. On September 27, 2026 GPM flew over the hurricane and captured a 3D image of it. This version has the dates burned into the video. || Polo_v07_stutter_with_dates.01500_print.jpg (1024x576) [128.3 KB] || Polo_v07_stutter_with_dates.mp4 (1920x1080) [185.1 MB] || ",
+      "url": "http://svs.gsfc.nasa.gov/5681/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2026-10-01T14:00:00-04:00",
+      "update_date": "2026-10-01T16:36:54-04:00",
+      "keywords": [
+        "Atmosphere",
+        "Atmospheric Phenomena",
+        "Atmospheric science",
+        "Earth Science",
+        "Hurricanes",
+        "Hydrology",
+        "Location",
+        "Natural hazards",
+        "Pacific",
+        "Pacific Ocean",
+        "precipitation",
+        "rain",
+        "Tropical Storm"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "Alex Kekesi",
+            "employer": "Global Science and Technology, Inc."
+          }
+        ],
+        "Scientific consulting by": [
+          {
+            "name": "George Huffman",
+            "employer": "NASA/GSFC"
+          }
+        ],
+        "Written by": [
+          {
+            "name": "Stephen Lang",
+            "employer": "SSAI"
+          }
+        ],
+        "Produced by": [
+          {
+            "name": "Peter H. Jacobs",
+            "employer": "NASA/GSFC"
+          }
+        ],
+        "Technical support": [
+          {
+            "name": "Laurence Schuler",
+            "employer": "ADNET Systems, Inc."
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "CPC (Climate Prediction Center) Cloud Composite",
+          "common_name": "",
+          "platform": null,
+          "sensor": null,
+          "type": "Data Compilation",
+          "organizations": [
+            "Climate Prediction Center (CPC)"
+          ],
+          "description": "Global cloud cover from multiple satellites",
+          "credit": "",
+          "url": "",
+          "date_range": "8/16/2025 10:23Z"
+        },
+        {
+          "name": "Surface Precipitation",
+          "common_name": "Rain Rates",
+          "platform": "GPM",
+          "sensor": "GMI",
+          "type": "Other",
+          "organizations": [],
+          "description": "",
+          "credit": "Data provided by the joint NASA/JAXA GPM mission.",
+          "url": "",
+          "date_range": "9/27/2026 5:06 - 6:39Z"
+        },
+        {
+          "name": "Ku",
+          "common_name": "Volumetric Precipitation data",
+          "platform": "GPM",
+          "sensor": "DPR",
+          "type": "Observed Data",
+          "organizations": [
+            "JAXA"
+          ],
+          "description": "",
+          "credit": "Data provided by the joint NASA/JAXA GPM mission.",
+          "url": "",
+          "date_range": "9/27/2026 5:06 - 6:39Z"
+        },
+        {
+          "name": "",
+          "common_name": "IMERG",
+          "platform": null,
+          "sensor": null,
+          "type": "Data Compilation",
+          "organizations": [
+            "NASA/GSFC"
+          ],
+          "description": "",
+          "credit": "",
+          "url": "http://pmm.nasa.gov/sites/default/files/document_files/IMERG_ATBD_V4.4.pdf",
+          "date_range": "9/20/2026 3:00Z - 9/27/2026 5:45Z"
+        }
+      ],
+      "main_image": {
+        "id": 1205878,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a005600/a005681/Polo_v07_dates.02000_print.jpg",
+        "filename": "Polo_v07_dates.02000_print.jpg",
+        "media_type": "Image",
+        "alt_text": "The date overlay for the Hurricane Polo GPM visualization.",
+        "width": 1024,
+        "height": 576,
+        "pixels": 589824
+      }
+    },
+    "5688": {
+      "id": 5688,
+      "title": "El Niño 2026: Sea Surface Temperature Anomaly (2025 vs. 2026) – Updated Daily",
+      "description": "A side-by-side comparison of sea surface temperature anomalies in the tropical Pacific during 2025 and 2026, highlighting ocean temperature patterns associated with El Niño. This visualization is updated daily to incorporate the latest available data.",
+      "url": "http://svs.gsfc.nasa.gov/5688/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2026-10-27T15:00:00-04:00",
+      "update_date": "2026-11-14T09:14:46.042065-05:00",
+      "keywords": [
+        "Automated",
+        "Earth Information Center",
+        "Earth Science",
+        "EIC",
+        "Eic (earth information center) display",
+        "Hyperwall",
+        "Ocean Temperature",
+        "Oceans",
+        "Physical oceanography",
+        "Sea Surface Temperature Anomaly"
+      ],
+      "main_credits": {
+        "Visualizations by": [
+          {
+            "name": "Kel Elkins",
+            "employer": "Science and Technology Corporation"
+          }
+        ]
+      },
+      "datasets": [
+        {
+          "name": "Multi-scale Ultra-high Resolution (MUR) Sea Surface Temperature (SST) Analysis",
+          "common_name": "MUR SST",
+          "platform": null,
+          "sensor": null,
+          "type": "Analysis",
+          "organizations": [
+            "JPL PO DAAC"
+          ],
+          "description": "",
+          "credit": "",
+          "url": "",
+          "date_range": ""
+        }
+      ],
+      "main_image": {
+        "id": 1206154,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a005600/a005688/elnino_eic_ssta_globes_wLegend_1670x835_latest.jpg",
+        "filename": "elnino_eic_ssta_globes_wLegend_1670x835_latest.jpg",
+        "media_type": "Image",
+        "alt_text": "Two side-by-side globes centered on the tropical Pacific Ocean, comparing sea surface temperature anomalies in 2025 and 2026. Red and blue shading highlights warmer- and cooler-than-average ocean temperatures, with a color bar legend showing the temperature differences in degrees Celsius.",
+        "width": 1670,
+        "height": 835,
+        "pixels": 1394450
+      }
+    },
+    "5690": {
+      "id": 5690,
+      "title": "Global Ocean Color from PACE: Apparent Visible Wavelength (AVW) – Updated Daily",
+      "description": "Visualizations showing global ocean color using apparent visible wavelength (AVW) data from NASA's PACE mission. The animation tracks changes in ocean color over time, providing a continuously updated view of patterns associated with phytoplankton across Earth's oceans.",
+      "url": "http://svs.gsfc.nasa.gov/5690/",
+      "page_type": "Visualization",
+      "nasa_science_categories": [
+        "Earth"
+      ],
+      "release_date": "2026-11-10T08:00:00-05:00",
+      "update_date": "2026-11-14T09:15:07.840210-05:00",
+      "keywords": [
+        "Automated",
+        "Biological oceanography",
+        "Chlorophyll",
+        "Ocean",
+        "ocean color",
+        "Oceans",
+        "Phytoplankton",
+        "Science On a Sphere",
+        "SOS"
+      ],
+      "main_credits": {},
+      "datasets": [
+        {
+          "name": "Apparent Visible Wavelength (AVW)",
+          "common_name": "AVW",
+          "platform": "PACE",
+          "sensor": "OCI",
+          "type": "Observed Data",
+          "organizations": [],
+          "description": "",
+          "credit": "",
+          "url": "",
+          "date_range": ""
+        }
+      ],
+      "main_image": {
+        "id": 1206250,
+        "url": "http://svs.gsfc.nasa.gov/vis/a000000/a005600/a005690/avw_most_recent_preview.jpg",
+        "filename": "avw_most_recent_preview.jpg",
+        "media_type": "Image",
+        "alt_text": "A global map in an Atlantic-centered rectangular projection showing the most recent available apparent visible wavelength (AVW) data. Ocean colors range from deep blue to green and yellow, revealing geographic patterns associated with phytoplankton concentrations. Date labels and a color legend are included.",
+        "width": 2048,
+        "height": 1024,
+        "pixels": 2097152
       }
     }
   }
