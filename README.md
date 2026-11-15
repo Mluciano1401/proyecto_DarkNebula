@@ -1,5 +1,5 @@
 -*En*-
-# Earth Jukebox · NASA Earth Sonification
+# Earth Jukebox · NASA Terra Tones
 
 **Listen to the Earth.** A web-based "jukebox" that converts NASA’s scientific visualizations of Earth into music, allowing blind or low-vision individuals to explore the same data featured in the Earth Information Center.
 
@@ -137,7 +137,7 @@ Images and data: **NASA Scientific Visualization Studio (SVS)**, in the public d
 Libraries: [Tone.js](https://tonejs.github.io/) and [D3.js](https://d3js.org/).
 ----------------------------------------------------------------------------------------------------------------------------------
 -*Es*-
-# Jukebox Terrestre · NASA Earth Sonification
+# Jukebox Terrestre · NASA Terra Tones
 
 **Escucha la Tierra.** Una rocola web que convierte visualizaciones científicas de la Tierra de NASA en música, para que personas ciegas o con baja visión puedan explorar los mismos datos que se ven en el Earth Information Center.
 

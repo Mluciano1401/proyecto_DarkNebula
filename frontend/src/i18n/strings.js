@@ -9,7 +9,7 @@ const NEW_TAB = {
 };
 
 const en = {
-  'meta.title': 'Earth Jukebox · NASA Earth Sonification',
+  'meta.title': 'Earth Jukebox · NASA Terra Tones',
   'meta.description': 'Listen to NASA Earth visualizations: accessible sonification of scientific images.',
   'loader.text': 'Loading Earth Jukebox…',
   skip: 'Skip to content',
@@ -190,7 +190,7 @@ const en = {
 };
 
 const es = {
-  'meta.title': 'Jukebox Terrestre · NASA Earth Sonification',
+  'meta.title': 'Jukebox Terrestre · NASA Terra Tones',
   'meta.description': 'Escucha visualizaciones de la Tierra de NASA: sonificación accesible de imágenes científicas.',
   'loader.text': 'Cargando Jukebox Terrestre…',
   skip: 'Saltar al contenido',
