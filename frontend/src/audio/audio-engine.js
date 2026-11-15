@@ -27,7 +27,9 @@ export function setHandlers({ onCell, onEnd } = {}) {
   if (onEnd) handlers.onEnd = onEnd;
 }
 
-const volumeToDb = (v) => (v <= 0.001 ? -Infinity : 20 * Math.log10(v) - 6);
+// +6 dB de ganancia de compensación: con -6 dB la pieza salía con picos de ~-25 dBFS,
+// casi inaudible en altavoces de teléfono y portátil. El limitador sigue evitando la saturación.
+const volumeToDb = (v) => (v <= 0.001 ? -Infinity : 20 * Math.log10(v) + 6);
 
 async function build() {
   const limiter = new Tone.Limiter(-6).toDestination();
@@ -79,8 +81,35 @@ async function build() {
   applySoundStyle();
 }
 
+// Desbloquea el audio. Hay que llamarla de forma síncrona dentro de un clic o una
+// tecla: Safari (iOS) solo reanuda el AudioContext durante el gesto, no después de
+// un `await` (por ejemplo, cuando la reproducción espera a que cargue la imagen).
+export function unlockAudio() {
+  // iOS: con el interruptor de silencio activado, Web Audio queda mudo (la narración
+  // no). El tipo de sesión «playback» hace que suene como un reproductor de música.
+  try {
+    if (navigator.audioSession) navigator.audioSession.type = 'playback';
+  } catch {
+    // API no disponible en este navegador
+  }
+  return Tone.start();
+}
+
+// Desbloqueo con la primera interacción en cualquier parte de la página.
+if (typeof document !== 'undefined') {
+  const events = ['pointerdown', 'pointerup', 'keydown'];
+  const onGesture = () => {
+    unlockAudio().then(() => {
+      if (Tone.getContext().state === 'running') {
+        for (const type of events) document.removeEventListener(type, onGesture, true);
+      }
+    });
+  };
+  for (const type of events) document.addEventListener(type, onGesture, true);
+}
+
 export async function ensureAudio() {
-  await Tone.start();
+  await unlockAudio();
   if (!nodes) {
     Tone.getContext().lookAhead = 0.15;
     await build();

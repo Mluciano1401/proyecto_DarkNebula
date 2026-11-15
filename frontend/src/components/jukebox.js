@@ -134,8 +134,9 @@ export function createJukebox(initialPlaylist = []) {
   }
 
   async function togglePlay() {
-    if (!state.current) return;
-    if (state.loading) {
+    // Dentro del gesto: si la música arranca después de cargar, el audio ya está desbloqueado.
+    engine.unlockAudio();
+    if (!state.current || state.loading) {
       // Aún se analiza la imagen: arrancará en cuanto esté lista.
       state.playWhenReady = !state.playWhenReady;
       setPlayingUI(state.playWhenReady);
@@ -147,6 +148,9 @@ export function createJukebox(initialPlaylist = []) {
       setPlayingUI(false);
       announce('Pausado.');
     } else {
+      // Pulsar Reproducir corta la narración en curso; si no, la música sonaría al 8 %
+      // (atenuada para la voz) durante toda la lectura de la descripción.
+      narrator.cancel();
       await play();
       announce(`Reproduciendo ${state.current.title}.`);
     }
@@ -423,6 +427,8 @@ export function createJukebox(initialPlaylist = []) {
       announce(message);
     } catch (err) {
       console.warn('No se pudo cargar el catálogo curado NASA:', err);
+      state.playWhenReady = false;
+      setPlayingUI(false);
       const message = 'No se pudieron cargar los metadatos e imágenes de NASA SVS. Comprueba la conexión y el proxy.';
       el.liveStatus.textContent = message;
       el.title.textContent = 'Catálogo de NASA no disponible';
